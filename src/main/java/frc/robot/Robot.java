@@ -24,7 +24,6 @@ public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
   // private Joystick m_controlor;
-  //
   // Motor controlers are established here
 
   /* 
@@ -58,8 +57,7 @@ public class Robot extends TimedRobot {
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
 
     rightMotor.setInverted(true);
-    //m_right1Motor.set(50);
-    //m_right2Motor.set(50);
+    
 
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
     m_joystick = new Joystick(0);
