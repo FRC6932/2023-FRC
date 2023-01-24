@@ -7,13 +7,15 @@
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoMode.PixelFormat;
+// import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-// import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-// import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax; 
 
 /**
  * This is a demo program showing the use of the DifferentialDrive class, specifically it contains
@@ -52,16 +54,26 @@ public class Robot extends TimedRobot {
     m_right1Motor = new CANSparkMax(right1DeviceID, MotorType.kBrushed);
     m_right2Motor = new CANSparkMax(right2DeviceID, MotorType.kBrushed);
 
-
     MotorControllerGroup leftMotor = new MotorControllerGroup(m_left1Motor, m_left2Motor);
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
 
     rightMotor.setInverted(true);
     
-
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
     m_joystick = new Joystick(0);
     // m_controlor = new Joystick(1);
+
+    // Make the cameras work
+    UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
+    UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
+
+     cam0.setResolution(500, 500);
+     cam0.setFPS(30);
+     cam0.setPixelFormat(PixelFormat.kMJPEG);
+
+     cam1.setResolution(160, 120);
+     cam1.setFPS(5);
+     cam1.setPixelFormat(PixelFormat.kMJPEG);
   }
 
   @Override
