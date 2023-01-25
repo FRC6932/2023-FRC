@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoMode.PixelFormat;
+// import edu.wpi.first.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -41,7 +41,10 @@ public class Robot extends TimedRobot {
   private CANSparkMax m_right1Motor; 
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
-   
+  
+  VideoSink server;
+  UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
+  UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
   @Override
   public void robotInit() {
@@ -64,20 +67,22 @@ public class Robot extends TimedRobot {
     // m_controlor = new Joystick(1);
 
     // Make the cameras work
-    UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
-    UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
-     cam0.setResolution(500, 500);
-     cam0.setFPS(30);
-     cam0.setPixelFormat(PixelFormat.kMJPEG);
+    server = CameraServer.getServer();
 
-     cam1.setResolution(160, 120);
-     cam1.setFPS(5);
-     cam1.setPixelFormat(PixelFormat.kMJPEG);
   }
 
   @Override
   public void teleopPeriodic() {
     m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
+
+    if (m_joystick.getRawButtonPressed(1)) {
+      System.out.println("Setting camera 0");
+      server.setSource(cam0);
+    }
+    else if (m_joystick.getRawButtonReleased(1)) {
+      System.out.println("Setting camera 1");
+      server.setSource(cam1);
+    }
   }
 }
