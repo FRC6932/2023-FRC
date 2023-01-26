@@ -74,7 +74,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
+    double axis_value = m_joystick.getRawAxis(3);
+    double mutliplier = ((axis_value + 1)/2);
+    //System.out.format("%.2f%n",mutliplier);
+
+    m_myRobot.arcadeDrive(-m_joystick.getY()*mutliplier, m_joystick.getZ()*0.5);
+
+    
 
     if (m_joystick.getRawButtonPressed(1)) {
       System.out.println("Setting camera 0");
