@@ -4,6 +4,11 @@
 
 // THIS IS 2023 ROBOT CODE
 
+// Notes for robot movement
+// x = left and right (not used)
+// y = forward and backward
+// z = twist (used for turning)
+
 // Required Packages
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
