@@ -4,6 +4,7 @@
 
 // THIS IS 2023 ROBOT CODE
 
+// Required Packages
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -21,14 +22,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
  * This is a demo program showing the use of the DifferentialDrive class, specifically it contains
  * the code necessary to operate a robot with tank drive.
  */
+
 public class Robot extends TimedRobot {
   // Controls are established here
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
-  // private Joystick m_controlor;
-  // Motor controlers are established here
 
-  /* 
+  // Motor controlers are established here
+  /*
   private final MotorController m_leftMotor = new PWMSparkMax(0);
   private final MotorController m_rightMotor = new PWMSparkMax(1);
   */
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot {
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
   
+  // Set cameras
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
@@ -60,14 +62,13 @@ public class Robot extends TimedRobot {
     MotorControllerGroup leftMotor = new MotorControllerGroup(m_left1Motor, m_left2Motor);
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
 
-    rightMotor.setInverted(true);
+    rightMotor.setInverted(true);   // invert right motors
     
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
     m_joystick = new Joystick(0);
     // m_controlor = new Joystick(1);
 
     // Make the cameras work
-
     server = CameraServer.getServer();
 
   }
@@ -86,7 +87,7 @@ public class Robot extends TimedRobot {
     m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
 
     
-
+    // Switch camera view?
     if (m_joystick.getRawButtonPressed(1)) {
       System.out.println("Setting camera 0");
       server.setSource(cam0);
@@ -95,9 +96,11 @@ public class Robot extends TimedRobot {
       System.out.println("Setting camera 1");
       server.setSource(cam1);
     }
+
+
   }
 
-  // Autonomous?
+  // Autonomous
   @Override
   public void AutonomousPeriodic () {
     
