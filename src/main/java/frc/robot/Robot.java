@@ -74,11 +74,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
+    //Untested Slider Code 
+    
+    /* 
     double axis_value = m_joystick.getRawAxis(3);
     double mutliplier = ((axis_value + 1)/2);
-    //System.out.format("%.2f%n",mutliplier);
+    System.out.format("%.2f%n",mutliplier);
+    */
 
-    m_myRobot.arcadeDrive(-m_joystick.getY()*mutliplier, m_joystick.getZ()*0.5);
+    m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
 
     
 
