@@ -96,4 +96,10 @@ public class Robot extends TimedRobot {
       server.setSource(cam1);
     }
   }
+
+  // Autonomous?
+  @Override
+  public void AutonomousPeriodic () {
+    
+  }
 }
