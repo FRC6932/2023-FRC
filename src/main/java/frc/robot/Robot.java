@@ -109,7 +109,6 @@ public class Robot extends TimedRobot {
   // Autonomous
   @Override
   public void autonomousPeriodic() {
-    // Waffles
   }
      
   
