@@ -30,6 +30,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
  */
 
 public class Robot extends TimedRobot {
+  //starttime
+  private double startTime;
+
   // Controls are established here
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
@@ -77,6 +80,8 @@ public class Robot extends TimedRobot {
     // Make the cameras work
     server = CameraServer.getServer();
 
+    
+
   }
 
   @Override
@@ -105,11 +110,27 @@ public class Robot extends TimedRobot {
 
 
   }
-
   // Autonomous
+
+  @Override
+  public void autonomousInit() {
+  startTime = Timer.getFPGATimestamp();
+
+  }
+  
+
   @Override
   public void autonomousPeriodic() {
+  double time = Timer.getFPGATimestamp();
+  if (time - startTime < 3) {
+    m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
+    
+  } else {
+    m_myRobot.arcadeDrive(0, 0);
   }
+
+  }
+  
      
   
 }
