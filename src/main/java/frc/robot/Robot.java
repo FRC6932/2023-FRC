@@ -9,6 +9,11 @@
 // y = forward and backward
 // z = twist (used for turning)
 
+// Notes for Logitech Gamepad F310 Buttons
+// A = 1, B = 2, X = 3, Y = 4, Left Bumper = 5, Right Bumper = 6, Back = 7, Start = 8, 
+// Left Joystick Button = 9, Right Joystick Button= 10
+// Joysticks have X and Y axes, Triggers are axes
+
 // Required Packages
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -37,6 +42,10 @@ public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
 
+  // logitech gamepad F310 controller established (untested)
+  private Joystick controller;
+  // end
+  
   // Motor controlers are established here
   /*
   private final MotorController m_leftMotor = new PWMSparkMax(0);
@@ -77,6 +86,9 @@ public class Robot extends TimedRobot {
     m_joystick = new Joystick(0);
     // m_controlor = new Joystick(1);
 
+    // logitech gamepade F310 (untested)
+    controller = new Joystick(1);
+
     // Make the cameras work
     server = CameraServer.getServer();
 
@@ -108,6 +120,17 @@ public class Robot extends TimedRobot {
       server.setSource(cam1);
     }
 
+    // Control arm (edit later when design and motors ready)
+    boolean A = false   // toggle method, press button to extend and press again to retract (may change)
+    if (controller.getRawButtonPressed(1)) {        // definitely a better way to do this
+      A = !A ;
+      if (A == true){
+        // motor.set(1);
+      } else {
+        // motor.set(-1);
+      }
+      }
+    } 
 
   }
   // Autonomous
