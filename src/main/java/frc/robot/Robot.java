@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
     }
 
     // Control arm (edit later when design and motors ready)
-    boolean A = false   // toggle method, press button to extend and press again to retract (may change)
+    boolean A = false;  // toggle method, press button to extend and press again to retract (may change)
     if (controller.getRawButtonPressed(1)) {        // definitely a better way to do this
       A = !A ;
       if (A == true){
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot {
       }
     } 
 
-  }
+  
   // Autonomous
 
   @Override
@@ -140,16 +140,16 @@ public class Robot extends TimedRobot {
   startTime = Timer.getFPGATimestamp();
 
   }
-  
+
 
   @Override
   public void autonomousPeriodic() {
-  double time = Timer.getFPGATimestamp();
-  if (time - startTime < 3) {
-    m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
-    
+    double time = Timer.getFPGATimestamp();
+    if (time - startTime < 3) {
+      m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
+
   } else {
-    m_myRobot.arcadeDrive(0, 0);
+      m_myRobot.arcadeDrive(0, 0);
   }
 
   }
