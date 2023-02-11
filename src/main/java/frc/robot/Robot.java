@@ -79,19 +79,23 @@ public class Robot extends TimedRobot {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     
+    // Robot Drive is established here 
+
+      // Motor variables are established
     m_left1Motor = new CANSparkMax(left1DeviceID, MotorType.kBrushed);
     m_left2Motor = new CANSparkMax(left2DeviceID, MotorType.kBrushed);
     m_right1Motor = new CANSparkMax(right1DeviceID, MotorType.kBrushed);
     m_right2Motor = new CANSparkMax(right2DeviceID, MotorType.kBrushed);
-
+      // Left and Right motors are put into a group so they move the same direction and speed for the arcade drive
     MotorControllerGroup leftMotor = new MotorControllerGroup(m_left1Motor, m_left2Motor);
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
-
-    rightMotor.setInverted(true);   // invert right motors
-    
+      // Inverts the right moters so they move the opposite direction (makes the robot go forward instead of turn)
+    rightMotor.setInverted(true);   
+    // Drive is set to use the left and right motors
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
+
+    // Establishes controllers
     m_joystick = new Joystick(0);
-    // m_controlor = new Joystick(1);
 
     // logitech gamepade F310 (untested)
     controller = new Joystick(1);
@@ -114,10 +118,12 @@ public class Robot extends TimedRobot {
     System.out.format("%.2f%n",mutliplier);
     */
 
+    // Robot drive 
+      // Uses the joystick for driving
     m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
 
-    
-    // Switch camera view?
+    // Cameras
+      // When the trigger on the joystick is held, the camera shown will change from the drive to the arm camera
     if (m_joystick.getRawButtonPressed(1)) {
       System.out.println("Setting camera 0");
       server.setSource(cam0);
@@ -127,7 +133,7 @@ public class Robot extends TimedRobot {
       server.setSource(cam1);
     }
 
-    // Control arm (edit later when design and motors ready)
+    // Arm Controls (edit later when design and motors ready)
     boolean A = false;  // toggle method, press button to extend and press again to retract (may change)
     if (controller.getRawButtonPressed(1)) {        // definitely a better way to do this
       A = !A ;
