@@ -168,8 +168,12 @@ public class Robot extends TimedRobot {
       m_myRobot.arcadeDrive(0, 0);
   }
 
+/*
+  @Override
+  public void teleopInit() {
+
   }
-  
+  */
      
   
 }
