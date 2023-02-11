@@ -46,12 +46,10 @@ public class Robot extends TimedRobot {
   private Joystick controller;
   // end
   
-  // Motor controlers are established here
-  /*
-  private final MotorController m_leftMotor = new PWMSparkMax(0);
-  private final MotorController m_rightMotor = new PWMSparkMax(1);
-  */
+  // Variables for Motors and Cameras are established below
+  
 
+    // Drive Motor Variables
   private static final int left1DeviceID = 1; 
   private CANSparkMax m_left1Motor;
   private static final int left2DeviceID = 2;
@@ -60,17 +58,18 @@ public class Robot extends TimedRobot {
   private CANSparkMax m_right1Motor; 
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
-  
-  private static final int bot_pivDeviceID = 5; 
+
+    // Arm Moter Variables
+  private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
-  private static final int top_pivDeviceID = 6; 
+  private static final int top_pivDeviceID = 6; //Top of arm motor pivot 
   private CANSparkMax top_pivMotor;
-  private static final int teleDeviceID = 7; 
+  private static final int teleDeviceID = 7; //Telescoping section of arm 
   private CANSparkMax teleMotor;
-  private static final int grabDeviceID = 8; 
+  private static final int grabDeviceID = 8; //Grabber motor for arm 
   private CANSparkMax grabMotor;
   
-  // Set cameras
+    // Set cameras
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
