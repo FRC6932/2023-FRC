@@ -61,6 +61,15 @@ public class Robot extends TimedRobot {
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
   
+  private static final int bot_pivDeviceID = 5; 
+  private CANSparkMax bot_pivMotor;
+  private static final int top_pivDeviceID = 6; 
+  private CANSparkMax top_pivMotor;
+  private static final int teleDeviceID = 7; 
+  private CANSparkMax teleMotor;
+  private static final int grabDeviceID = 8; 
+  private CANSparkMax grabMotor;
+  
   // Set cameras
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
