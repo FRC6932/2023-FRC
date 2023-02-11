@@ -29,10 +29,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-/**
- * This is a demo program showing the use of the DifferentialDrive class, specifically it contains
- * the code necessary to operate a robot with tank drive.
- */
+
 
 public class Robot extends TimedRobot {
   //starttime
@@ -74,6 +71,8 @@ public class Robot extends TimedRobot {
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
+
+
   @Override
   public void robotInit() {
     // We need to invert one side of the drivetrain so that positive voltages
@@ -100,9 +99,9 @@ public class Robot extends TimedRobot {
     // Make the cameras work
     server = CameraServer.getServer();
 
-    
-
   }
+
+
 
   @Override
   public void teleopPeriodic() {
