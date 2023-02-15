@@ -29,6 +29,9 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.I2C.Port;
+
 
 
 public class Robot extends TimedRobot {
@@ -70,6 +73,8 @@ public class Robot extends TimedRobot {
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
+
+  boolean ledToggle = false; 
 
 
 
@@ -145,6 +150,13 @@ public class Robot extends TimedRobot {
       }
     
     
+    if (m_joystick.getRawButton(12)){
+      
+
+    }
+
+
+
 
     } 
 
