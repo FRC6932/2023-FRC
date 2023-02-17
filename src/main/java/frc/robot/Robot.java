@@ -31,7 +31,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
-
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 
 public class Robot extends TimedRobot {
@@ -86,7 +87,7 @@ public class Robot extends TimedRobot {
     
     // Robot Drive is established here 
 
-      // Motor variables are established
+      // Drive Motor variables are established
     m_left1Motor = new CANSparkMax(left1DeviceID, MotorType.kBrushed);
     m_left2Motor = new CANSparkMax(left2DeviceID, MotorType.kBrushed);
     m_right1Motor = new CANSparkMax(right1DeviceID, MotorType.kBrushed);
@@ -99,6 +100,13 @@ public class Robot extends TimedRobot {
     // Drive is set to use the left and right motors
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
 
+      // Arm Motor variables are established
+    bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushed);
+    top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushed);
+    teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
+    grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
+
+
     // Establishes controllers
     m_joystick = new Joystick(0);
 
@@ -107,6 +115,9 @@ public class Robot extends TimedRobot {
 
     // Make the cameras work
     server = CameraServer.getServer();
+
+    // startTime = Timer.getFPGATimestamp(); !
+    // SlewRateLimiter l = new SlewRateLimiter(0.5);
 
   }
 
@@ -149,9 +160,26 @@ public class Robot extends TimedRobot {
       }
       }
     
-    
+    // Temporary arm code
+    if (controller.getRawButton(1)){
+      // bot_pivMotor.set(l.calculate(0.5));
+      bot_pivMotor.set(.5);
+    }  
+    else{
+      bot_pivMotor.set(0);
+    }
+
+    if (controller.getRawButton(2)){
+      bot_pivMotor.set(-.5);
+    }
+    else{
+      bot_pivMotor.set(0);
+    }
+
+
+
     if (m_joystick.getRawButton(12)){
-      
+
 
     }
 
