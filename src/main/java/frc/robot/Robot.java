@@ -163,18 +163,15 @@ public class Robot extends TimedRobot {
     // Temporary arm code
     if (controller.getRawButton(1)){
       // bot_pivMotor.set(l.calculate(0.5));
-      bot_pivMotor.set(.5);
+      bot_pivMotor.set(.35);
+    }
+    else if (controller.getRawButton(2)){
+      bot_pivMotor.set(-.35);
     }  
     else{
       bot_pivMotor.set(0);
     }
 
-    if (controller.getRawButton(2)){
-      bot_pivMotor.set(-.5);
-    }
-    else{
-      bot_pivMotor.set(0);
-    }
 
 
 
