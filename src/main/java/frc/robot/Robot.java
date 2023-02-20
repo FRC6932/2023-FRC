@@ -27,8 +27,10 @@ import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -63,8 +65,10 @@ public class Robot extends TimedRobot {
     // Arm Moter Variables
   private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
+  private RelativeEncoder bot_pivEncoder;
   private static final int top_pivDeviceID = 6; //Top of arm motor pivot 
   private CANSparkMax top_pivMotor;
+  private RelativeEncoder top_pivEncoder;
   private static final int teleDeviceID = 7; //Telescoping section of arm 
   private CANSparkMax teleMotor;
   private static final int grabDeviceID = 8; //Grabber motor for arm 
@@ -101,8 +105,10 @@ public class Robot extends TimedRobot {
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
 
       // Arm Motor variables are established
-    bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushed);
-    top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushed);
+    bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
+    bot_pivEncoder = bot_pivMotor.getEncoder();
+    top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
+    top_pivEncoder = top_pivMotor.getEncoder();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
