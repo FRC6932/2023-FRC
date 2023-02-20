@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-// import edu.wpi.first.cscore.VideoMode.PixelFormat;
 import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -30,11 +29,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+//import edu.wpi.first.wpilibj.Encoder;
+//import edu.wpi.first.wpilibj.I2C;
+//import edu.wpi.first.wpilibj.I2C.Port;
+//import edu.wpi.first.math.filter.SlewRateLimiter;
+//import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 
 public class Robot extends TimedRobot {
@@ -166,7 +165,7 @@ public class Robot extends TimedRobot {
       }
       }
     
-    // Temporary arm code
+    /*  Temporary arm code
     if (controller.getRawButton(1)){
       // bot_pivMotor.set(l.calculate(0.5));
       bot_pivMotor.set(.35);
@@ -177,15 +176,27 @@ public class Robot extends TimedRobot {
     else{
       bot_pivMotor.set(0);
     }
+    */
+    if (controller.getRawButton(4)){
+      if (bot_pivEncoder.getPosition() < 5){
+        bot_pivMotor.set(0.35);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+    }
+    else{
+      bot_pivMotor.set(0);
+    }
+    
 
 
-
-
+    /*  LED Code
     if (m_joystick.getRawButton(12)){
 
 
     }
-
+    */  
 
 
 
