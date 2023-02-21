@@ -21,19 +21,23 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+// import edu.wpi.first.cscore.VideoMode.PixelFormat;
 import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-//import edu.wpi.first.wpilibj.Encoder;
-//import edu.wpi.first.wpilibj.I2C;
-//import edu.wpi.first.wpilibj.I2C.Port;
-//import edu.wpi.first.math.filter.SlewRateLimiter;
-//import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 
 public class Robot extends TimedRobot {
@@ -80,6 +84,19 @@ public class Robot extends TimedRobot {
 
   boolean ledToggle = false; 
 
+  //Declare Sendable Chooser Paths
+
+  private static final String kDefaultAuto = "Default";
+  private static final String kCustomAuto1 = "My Auto1";
+  private static final String kCustomAuto2 = "My Auto2";
+  private static final String kCustomAuto3 = "My Auto3";
+  private static final String kCustomAuto4 = "My Auto4";
+  private static final String kCustomAuto5 = "My Auto5";
+  private static final String kCustomAuto6 = "My Auto6";
+
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
 
 
   @Override
@@ -124,7 +141,20 @@ public class Robot extends TimedRobot {
     // startTime = Timer.getFPGATimestamp(); !
     // SlewRateLimiter l = new SlewRateLimiter(0.5);
 
+    //Add Commands to SmartDashboard Names are placeholders 
+
+    m_chooser.setDefaultOption("Default", kDefaultAuto);
+    m_chooser.addOption("Auto Choice 1", kCustomAuto1);
+    m_chooser.addOption("Auto Choice 2", kCustomAuto2);
+    m_chooser.addOption("Auto Choice 3", kCustomAuto3);
+    m_chooser.addOption("Auto Choice 4", kCustomAuto4);
+    m_chooser.addOption("Auto Choice 5", kCustomAuto5);
+    m_chooser.addOption("Auto Choice 6", kCustomAuto6);
+
+    SmartDashboard.putData("Autonomous Choices", m_chooser);
   }
+
+  
 
 
 
@@ -165,7 +195,7 @@ public class Robot extends TimedRobot {
       }
       }
     
-    /*  Temporary arm code
+    // Temporary arm code
     if (controller.getRawButton(1)){
       // bot_pivMotor.set(l.calculate(0.5));
       bot_pivMotor.set(.35);
@@ -176,27 +206,16 @@ public class Robot extends TimedRobot {
     else{
       bot_pivMotor.set(0);
     }
-    */
-    if (controller.getRawButton(4)){
-      if (bot_pivEncoder.getPosition() < 5){
-        bot_pivMotor.set(0.35);
-      }
-      else{
-        bot_pivMotor.set(0);
-      }
-    }
-    else{
-      bot_pivMotor.set(0);
-    }
-    
 
 
-    /*  LED Code
+
+
     if (m_joystick.getRawButton(12)){
 
+      
 
     }
-    */  
+
 
 
 
@@ -208,6 +227,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
   startTime = Timer.getFPGATimestamp();
+  m_autoSelected = m_chooser.getSelected();
+  System.out.println("Auto selected: " + m_autoSelected);
 
   }
 
@@ -215,12 +236,65 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double time = Timer.getFPGATimestamp();
-    if (time - startTime < 3) {
-      m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
+    switch (m_autoSelected) {
+      case kCustomAuto1:
 
+        //AUTO PATH 1 CODE HERE
+        //Code here runs during autonomous if option 1 is selected
+
+        if (time - startTime < 3) {
+    m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
+    
   } else {
-      m_myRobot.arcadeDrive(0, 0);
+    m_myRobot.arcadeDrive(0, 0);
   }
+
+      
+
+        break;
+      case kCustomAuto2:
+
+        //AUTO PATH 2 CODE HERE
+
+      
+
+        break;
+      case kCustomAuto3:
+
+        //AUTO PATH 3 CODE HERE
+
+      
+
+        break;
+      case kCustomAuto4:
+
+        //AUTO PATH 4 CODE HERE
+
+      
+
+        break;
+      case kCustomAuto5:
+
+        //AUTO PATH 5 CODE HERE
+
+      
+
+        break;
+      case kCustomAuto6:
+
+        //AUTO PATH 6 CODE HERE
+
+      
+
+        break;
+      
+      case kDefaultAuto:
+      default:
+      
+        // Put default auto code here
+
+        break;
+    }
 
 /*
   @Override
