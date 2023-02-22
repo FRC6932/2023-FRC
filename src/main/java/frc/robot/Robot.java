@@ -25,6 +25,8 @@ import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -154,30 +156,60 @@ public class Robot extends TimedRobot {
       server.setSource(cam1);
     }
 
+    //bot_pivEncoder.setPosition(0);
+    boolean A = true;
+    boolean B = true;
+    boolean X = true;
+    boolean Y = true;
     // Arm Controls (edit later when design and motors ready)
-    boolean A = false;  // toggle method, press button to extend and press again to retract (may change)
-    if (controller.getRawButtonPressed(1)) {        // definitely a better way to do this
-      A = !A ;
-      if (A == true){
-        // motor.set(1);
-      } else {
-        // motor.set(-1);
-      }
-      }
-    
-    /*  Temporary arm code
+      // toggle method, hold button to extend and let go to retract (may change)
+
+      // Moves the arm to Floor height scoring/pickup position (A button)
     if (controller.getRawButton(1)){
-      // bot_pivMotor.set(l.calculate(0.5));
-      bot_pivMotor.set(.35);
+      A=!A;
     }
-    else if (controller.getRawButton(2)){
-      bot_pivMotor.set(-.35);
-    }  
+
+    if(A==true){
+      if (bot_pivEncoder.getPosition()<5){
+        bot_pivMotor.set(0.03);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+    }
+    else if(A==false){
+      if (bot_pivEncoder.getPosition()>0){
+        bot_pivMotor.set(-0.03);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+    }
     else{
       bot_pivMotor.set(0);
     }
-    */
-    if (controller.getRawButton(4)){
+
+      //Temporary telescoping code
+    if(controller.getRawButton(5)){
+      teleMotor.set(1);
+    }
+    else if(controller.getRawButton(6)){
+      teleMotor.set(-1);
+    }
+    else{
+      teleMotor.set(0);
+    }
+    
+    
+      
+    
+
+    
+      
+    /* 
+    
+      // Moves the arm to Medium height scoring position (B button)
+    if(controller.getRawButton(2)){
       if (bot_pivEncoder.getPosition() < 5){
         bot_pivMotor.set(0.35);
       }
@@ -188,9 +220,33 @@ public class Robot extends TimedRobot {
     else{
       bot_pivMotor.set(0);
     }
-    
 
+      // Moves the arm to Shelf pickup position (X button)
+    if(controller.getRawButton(3)){
+      if (bot_pivEncoder.getPosition() < 5){
+        bot_pivMotor.set(0.35);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+    }
+    else{
+      bot_pivMotor.set(0);
+    }
 
+      // Moves the arm to High height scoring position (Y button)
+    if(controller.getRawButton(4)){
+      if (bot_pivEncoder.getPosition() < 5){
+        bot_pivMotor.set(0.35);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+    }
+    else{
+      bot_pivMotor.set(0);
+    }
+    */
     /*  LED Code
     if (m_joystick.getRawButton(12)){
 
