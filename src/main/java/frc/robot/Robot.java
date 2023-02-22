@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto6 = "My Auto6";
 
   private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  //private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
 
 
@@ -141,7 +141,7 @@ public class Robot extends TimedRobot {
     // SlewRateLimiter l = new SlewRateLimiter(0.5);
 
     //Add Commands to SmartDashboard Names are placeholders 
-
+    /* 
     m_chooser.setDefaultOption("Default", kDefaultAuto);
     m_chooser.addOption("Auto Choice 1", kCustomAuto1);
     m_chooser.addOption("Auto Choice 2", kCustomAuto2);
@@ -150,7 +150,8 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("Auto Choice 5", kCustomAuto5);
     m_chooser.addOption("Auto Choice 6", kCustomAuto6);
 
-    SmartDashboard.putData("Autonomous Choices", m_chooser);
+    SmartDashboard.putData("Autonomous Choices", m_chooser);\
+    */
   }
 
   
