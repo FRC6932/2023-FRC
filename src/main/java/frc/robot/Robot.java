@@ -26,18 +26,18 @@ import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+//import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+/* 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
+*/
 
 public class Robot extends TimedRobot {
   //starttime
@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
   boolean ledToggle = false; 
 
   //Declare Sendable Chooser Paths
-
+  /* 
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto1 = "My Auto1";
   private static final String kCustomAuto2 = "My Auto2";
@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
 
   private String m_autoSelected;
   //private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
+  */
 
 
   @Override
@@ -204,6 +204,13 @@ public class Robot extends TimedRobot {
       else{
         bot_pivMotor.set(0);
       }
+
+      if(top_pivEncoder.getPosition()<5){
+        top_pivMotor.set(0.03);
+      }
+      else{
+        top_pivMotor.set(0);
+      }
     }
     else if(A==false){
       if (bot_pivEncoder.getPosition()>0){
@@ -212,10 +219,20 @@ public class Robot extends TimedRobot {
       else{
         bot_pivMotor.set(0);
       }
+
+      if(top_pivEncoder.getPosition()>0){
+        top_pivMotor.set(-0.03);
+      }
+      else{
+        top_pivMotor.set(0);
+      }
     }
-    else{
-      bot_pivMotor.set(0);
+    /*else{
+      bot_pivMotor.set(0); // Untested
     }
+    */
+
+
 
       //Temporary telescoping code
     if(controller.getRawButton(5)){
