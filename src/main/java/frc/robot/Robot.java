@@ -27,6 +27,8 @@ import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -84,7 +86,7 @@ public class Robot extends TimedRobot {
   boolean ledToggle = false; 
 
   //Declare Sendable Chooser Paths
-  /* 
+  
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto1 = "My Auto1";
   private static final String kCustomAuto2 = "My Auto2";
@@ -94,8 +96,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto6 = "My Auto6";
 
   private String m_autoSelected;
-  //private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  */
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
 
 
   @Override
@@ -141,7 +143,7 @@ public class Robot extends TimedRobot {
     // SlewRateLimiter l = new SlewRateLimiter(0.5);
 
     //Add Commands to SmartDashboard Names are placeholders 
-    /* 
+    
     m_chooser.setDefaultOption("Default", kDefaultAuto);
     m_chooser.addOption("Auto Choice 1", kCustomAuto1);
     m_chooser.addOption("Auto Choice 2", kCustomAuto2);
@@ -150,8 +152,8 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("Auto Choice 5", kCustomAuto5);
     m_chooser.addOption("Auto Choice 6", kCustomAuto6);
 
-    SmartDashboard.putData("Autonomous Choices", m_chooser);\
-    */
+    SmartDashboard.putData("Autonomous Choices", m_chooser);
+    
   }
 
   
@@ -298,6 +300,7 @@ public class Robot extends TimedRobot {
       
 
     }
+    */
 
 
 
