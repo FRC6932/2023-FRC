@@ -26,9 +26,9 @@ import edu.wpi.first.cscore.VideoSink;
 // import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -85,20 +85,6 @@ public class Robot extends TimedRobot {
 
   boolean ledToggle = false; 
 
-  //Declare Sendable Chooser Paths
-  
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto1 = "My Auto1";
-  private static final String kCustomAuto2 = "My Auto2";
-  private static final String kCustomAuto3 = "My Auto3";
-  private static final String kCustomAuto4 = "My Auto4";
-  private static final String kCustomAuto5 = "My Auto5";
-  private static final String kCustomAuto6 = "My Auto6";
-
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
-
 
   @Override
   public void robotInit() {
@@ -142,17 +128,8 @@ public class Robot extends TimedRobot {
     // startTime = Timer.getFPGATimestamp(); !
     // SlewRateLimiter l = new SlewRateLimiter(0.5);
 
-    //Add Commands to SmartDashboard Names are placeholders 
     
-    m_chooser.setDefaultOption("Default", kDefaultAuto);
-    m_chooser.addOption("Auto Choice 1", kCustomAuto1);
-    m_chooser.addOption("Auto Choice 2", kCustomAuto2);
-    m_chooser.addOption("Auto Choice 3", kCustomAuto3);
-    m_chooser.addOption("Auto Choice 4", kCustomAuto4);
-    m_chooser.addOption("Auto Choice 5", kCustomAuto5);
-    m_chooser.addOption("Auto Choice 6", kCustomAuto6);
 
-    SmartDashboard.putData("Autonomous Choices", m_chooser);
     
   }
 
@@ -170,8 +147,7 @@ public class Robot extends TimedRobot {
     double mutliplier = ((axis_value + 1)/2);
     System.out.format("%.2f%n",mutliplier);
     */
-
-    // Robot drive 
+   // Robot drive 
       // Uses the joystick for driving
     m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
 
@@ -313,8 +289,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
   startTime = Timer.getFPGATimestamp();
-  m_autoSelected = m_chooser.getSelected();
-  System.out.println("Auto selected: " + m_autoSelected);
+  
 
   }
 
@@ -322,13 +297,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double time = Timer.getFPGATimestamp();
-    switch (m_autoSelected) {
-      case kCustomAuto1:
-
-        //AUTO PATH 1 CODE HERE
-        //Code here runs during autonomous if option 1 is selected
-
-        if (time - startTime < 3) {
+    
+    if (time - startTime < 3) {
     m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
     
   } else {
@@ -337,50 +307,6 @@ public class Robot extends TimedRobot {
 
       
 
-        break;
-      case kCustomAuto2:
-
-        //AUTO PATH 2 CODE HERE
-
-      
-
-        break;
-      case kCustomAuto3:
-
-        //AUTO PATH 3 CODE HERE
-
-      
-
-        break;
-      case kCustomAuto4:
-
-        //AUTO PATH 4 CODE HERE
-
-      
-
-        break;
-      case kCustomAuto5:
-
-        //AUTO PATH 5 CODE HERE
-
-      
-
-        break;
-      case kCustomAuto6:
-
-        //AUTO PATH 6 CODE HERE
-
-      
-
-        break;
-      
-      case kDefaultAuto:
-      default:
-      
-        // Put default auto code here
-
-        break;
-    }
 
 /*
   @Override
