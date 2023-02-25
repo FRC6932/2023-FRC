@@ -228,10 +228,10 @@ public class Robot extends TimedRobot {
     }
 
     if(X==true){
-      top_pivMotor.set(0.5);
+      top_pivMotor.set(0.1);
     }
     else if(B==true){
-      top_pivMotor.set(-0.1);
+      top_pivMotor.set(-0.05);
     }
     else{
       top_pivMotor.set(0);
