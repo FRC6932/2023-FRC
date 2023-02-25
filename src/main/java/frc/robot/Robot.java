@@ -228,18 +228,43 @@ public class Robot extends TimedRobot {
     }
 
     if(X==true){
-      top_pivMotor.set(0.1);
+      bot_pivMotor.set(0.1);
     }
     else if(B==true){
-      top_pivMotor.set(-0.05);
+      bot_pivMotor.set(-0.1);
     }
     else{
-      top_pivMotor.set(0);
+      bot_pivMotor.set(0);
     }
 
 
       //Temporary telescoping code 
-    /* 
+    if(controller.getRawButton(5)){
+      LB=true;
+    }
+    else{
+      LB=false;
+    }
+
+    if(controller.getRawButton(6)){
+      RB=true;
+    }
+    else{
+      RB=false;
+    }
+
+    if(LB==true){
+      teleMotor.set(0.5);
+    }
+    else if(RB==true){
+      teleMotor.set(-0.5);
+    }
+    else{
+      teleMotor.set(0);
+    }
+    
+    
+      /* 
     if(controller.getRawButton(5)){
       LB=!LB;
     }
