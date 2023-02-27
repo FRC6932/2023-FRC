@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.math.controller.PIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 /* 
 import edu.wpi.first.wpilibj.Encoder;
@@ -70,9 +71,11 @@ public class Robot extends TimedRobot {
   private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
+  private SparkMaxPIDController bot_pivPID;
   private static final int top_pivDeviceID = 6; //Top of arm motor pivot 
   private CANSparkMax top_pivMotor;
   private RelativeEncoder top_pivEncoder;
+  private SparkMaxPIDController top_pivPID;
   private static final int teleDeviceID = 7; //Telescoping section of arm 
   private CANSparkMax teleMotor;
   private static final int grabDeviceID = 8; //Grabber motor for arm 
@@ -110,8 +113,10 @@ public class Robot extends TimedRobot {
       // Arm Motor variables are established
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivEncoder = bot_pivMotor.getEncoder();
+    bot_pivPID = bot_pivMotor.getPIDController();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
     top_pivEncoder = top_pivMotor.getEncoder();
+    top_pivPID = top_pivMotor.getPIDController();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
@@ -228,13 +233,13 @@ public class Robot extends TimedRobot {
     }
 
     if(X==true){
-      bot_pivMotor.set(0.1);
+      top_pivMotor.set(0.1);
     }
     else if(B==true){
-      bot_pivMotor.set(-0.1);
+      top_pivMotor.set(-0.1);
     }
     else{
-      bot_pivMotor.set(0);
+      top_pivMotor.set(0);
     }
 
 
