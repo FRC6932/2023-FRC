@@ -30,6 +30,10 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import edu.wpi.first.math.controller.PIDController;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -112,7 +116,9 @@ public class Robot extends TimedRobot {
 
       // Arm Motor variables are established
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
+    bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
+    //bot_pivEncoder.setInverted(true); gave an error
     bot_pivPID = bot_pivMotor.getPIDController();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
     top_pivEncoder = top_pivMotor.getEncoder();
@@ -132,8 +138,8 @@ public class Robot extends TimedRobot {
 
     // startTime = Timer.getFPGATimestamp(); !
     // SlewRateLimiter l = new SlewRateLimiter(0.5);
-
-    
+    bot_pivEncoder.setPosition(0);
+    top_pivEncoder.setPosition(0);
 
     
   }
@@ -144,6 +150,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
+      // Establishes variables
+    boolean A = true;
+    boolean B = true;
+    boolean X = true;
+    boolean Y = true;
+    boolean LB = true;
+    boolean RB = true;
+    int[] flsc = {1,1}; // Sets a list of the number of rotations that the motors need to move. flsc.get(0)= disired bot_pivEncoder position, flsc.get(1)= disered top_pivEncoder position
+    int[] mdsc = {1,1};
+    int[] hisc = {1,1};
+    int[] shup = {1,1};
+    
 
     //Untested Slider Code 
     
@@ -166,57 +185,50 @@ public class Robot extends TimedRobot {
       System.out.println("Setting camera 1");
       server.setSource(cam1);
     }
-
+    
     if (controller.getRawButtonPressed(7)){
       bot_pivEncoder.setPosition(0);
     }
+    
     //
-    boolean A = true;
-    boolean B = true;
-    boolean X = true;
-    boolean Y = true;
-    boolean LB = true;
-    boolean RB = true;
+    
     // Arm Controls (edit later when design and motors ready)
       // toggle method, hold button to extend and let go to retract (may change)
 
       // Moves the arm to Floor height scoring/pickup position (A button)
-    /* 
-    if (controller.getRawButton(1)){
-      A=!A;
-    }
-
-    if(A==true){
-      if (bot_pivEncoder.getPosition()<2){
-        bot_pivMotor.set(0.1);
+     
+    if(controller.getRawButton(1)==true){
+      if (bot_pivEncoder.getPosition()<5){
+        bot_pivMotor.set(0.15);
       }
       else{
         bot_pivMotor.set(0);
       }
-      /* 
-      if(top_pivEncoder.getPosition()<5){
-        top_pivMotor.set(0.35);
+      
+      if(top_pivEncoder.getPosition()<25){
+        top_pivMotor.set(0.15);
       }
       else{
         top_pivMotor.set(0);
       } 
+      
     }
-    else if(A==false){
+    else if(controller.getRawButton(1)==false){
       if (bot_pivEncoder.getPosition()>0){
-        bot_pivMotor.set(-0.25);
+        bot_pivMotor.set(-0.15);
       }
       else{
         bot_pivMotor.set(0);
       }
-      /* 
+      
       if(top_pivEncoder.getPosition()>0){
-        top_pivMotor.set(-0.35);
+        top_pivMotor.set(-0.15);
       }
       else{
         top_pivMotor.set(0);
       }
     }
-    */
+    
       // Moves the arm to Medium height scoring position (B button)
     if(controller.getRawButton(2)){
       B=true;
@@ -233,13 +245,13 @@ public class Robot extends TimedRobot {
     }
 
     if(X==true){
-      top_pivMotor.set(0.1);
+      bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
     }
     else if(B==true){
-      top_pivMotor.set(-0.1);
+      bot_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
     }
     else{
-      top_pivMotor.set(0);
+      bot_pivMotor.set(0);
     }
 
 
@@ -259,10 +271,10 @@ public class Robot extends TimedRobot {
     }
 
     if(LB==true){
-      teleMotor.set(0.5);
+      teleMotor.set(0.75);
     }
     else if(RB==true){
-      teleMotor.set(-0.5);
+      teleMotor.set(-0.75);
     }
     else{
       teleMotor.set(0);
