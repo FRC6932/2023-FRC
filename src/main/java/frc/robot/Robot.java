@@ -184,6 +184,7 @@ public class Robot extends TimedRobot {
     
     if (controller.getRawButtonPressed(7)){
       bot_pivEncoder.setPosition(0);
+      top_pivEncoder.setPosition(0);
     }
     
     //
