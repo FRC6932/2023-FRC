@@ -139,7 +139,22 @@ public class Robot extends TimedRobot {
 
     
   }
-
+  private void move_to_position(double set_point, double current_point, CANSparkMax motor) {
+    if(current_point<set_point){
+      motor.set(0.05);
+    }
+    else{
+      motor.set(0);
+    }
+  }
+  private void move_to_rest(double rest_point, double current_point, CANSparkMax motor) {
+    if(current_point>rest_point){
+      motor.set(-0.05);
+    }
+    else{
+      motor.set(0);
+    }
+  }
   
 
 
@@ -155,8 +170,8 @@ public class Robot extends TimedRobot {
     boolean LB = controller.getRawButton(5);
     boolean RB = controller.getRawButton(6);
 
-    double bot_pivPosition = bot_pivEncoder.getPosition()*-1;
-    System.out.println(bot_pivEncoder.getPosition());
+    double bot_pivPosition = (bot_pivEncoder.getPosition())*-1;
+    System.out.println(bot_pivPosition);
     double top_pivPosition = top_pivEncoder.getPosition();
     //System.out.println(top_pivEncoder.getPosition());
 
@@ -193,73 +208,39 @@ public class Robot extends TimedRobot {
       // toggle method, hold button to extend and let go to retract (may change)
 
       // Moves the arm to Floor height scoring/pickup position (A button)
-    
+    /* 
     if(A||B||X||Y){
       if(A){
-        if (bot_pivPosition<2){
-          bot_pivMotor.set(0.15);
-        }
-        else{
-          bot_pivMotor.set(0);
-        }
-        
-        if(top_pivPosition<25){
-          top_pivMotor.set(0.15);
-        }
-        else{
-          top_pivMotor.set(0);
-        } 
+        move_to_position(5, bot_pivPosition, bot_pivMotor);
+        //move_to_position(5, top_pivPosition, top_pivMotor);
       }
-      
-      if(B){
-        if (bot_pivPosition<4){
-          bot_pivMotor.set(0.15);
-        }
-        else{
-          bot_pivMotor.set(0);
-        }
-        
-        if(top_pivPosition<15){
-          top_pivMotor.set(0.15);
-        }
-        else{
-          top_pivMotor.set(0);
-        }
+      else if(B){
+        move_to_position(10, bot_pivPosition, bot_pivMotor);
+        //move_to_position(10, top_pivPosition, top_pivMotor);        
       }
     }
     else{
-      if (bot_pivPosition>0){
-        bot_pivMotor.set(-0.15);
-      }
-      else{
-        bot_pivMotor.set(0);
-      }
-      
-      if(top_pivPosition>0){
-        top_pivMotor.set(-0.15);
-      }
-      else{
-        top_pivMotor.set(0);
-      }
+      move_to_rest(0, bot_pivPosition, bot_pivMotor);
+      //move_to_rest(0, top_pivPosition, top_pivMotor);
     }
-    
-    
     /*
     
+    
+    */
     
       // Moves the arm to Medium height scoring position (B button)
      
     if(X==true){
-      top_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
+      bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
     }
     else if(B==true){
-      top_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
+      bot_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
     }
     else{
-      top_pivMotor.set(0);
+      bot_pivMotor.set(0);
     }
 
-   
+    
       //Temporary telescoping code
     
     
@@ -272,7 +253,7 @@ public class Robot extends TimedRobot {
     else{
       teleMotor.set(0);
     }
-    */
+    
     
          
       
@@ -312,9 +293,10 @@ public class Robot extends TimedRobot {
       
 
     }
-    */
+    */      
 
-
+    
+    
 
 
     } 
