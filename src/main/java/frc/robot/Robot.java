@@ -208,7 +208,7 @@ public class Robot extends TimedRobot {
       // toggle method, hold button to extend and let go to retract (may change)
 
       // Moves the arm to Floor height scoring/pickup position (A button)
-    /* 
+   
     if(A||B||X||Y){
       if(A){
         move_to_position(5, bot_pivPosition, bot_pivMotor);
@@ -226,7 +226,7 @@ public class Robot extends TimedRobot {
     /*
     
     
-    */
+  
     
       // Moves the arm to Medium height scoring position (B button)
      
