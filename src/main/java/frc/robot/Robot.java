@@ -21,17 +21,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-// import edu.wpi.first.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.cscore.VideoSink;
-// import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import edu.wpi.first.math.controller.PIDController;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import com.revrobotics.CANSparkMax;
@@ -49,7 +46,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Robot extends TimedRobot {
   //starttime
   private double startTime;
-
+  private ShuffleboardTab tab;
   // Controls are established here
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
@@ -95,6 +92,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    tab = Shuffleboard.getTab("SmartDashboard");
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
@@ -118,11 +116,8 @@ public class Robot extends TimedRobot {
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
-    //bot_pivEncoder.setInverted(true); gave an error
-    bot_pivPID = bot_pivMotor.getPIDController();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
     top_pivEncoder = top_pivMotor.getEncoder();
-    top_pivPID = top_pivMotor.getPIDController();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
@@ -132,6 +127,7 @@ public class Robot extends TimedRobot {
 
     // logitech gamepade F310 (untested)
     controller = new Joystick(1);
+    
 
     // Make the cameras work
     server = CameraServer.getServer();
@@ -150,19 +146,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
+  
       // Establishes variables
-    boolean A = true;
-    boolean B = true;
-    boolean X = true;
-    boolean Y = true;
-    boolean LB = true;
-    boolean RB = true;
-    int[] flsc = {1,1}; // Sets a list of the number of rotations that the motors need to move. flsc.get(0)= disired bot_pivEncoder position, flsc.get(1)= disered top_pivEncoder position
-    int[] mdsc = {1,1};
-    int[] hisc = {1,1};
-    int[] shup = {1,1};
-    
+    boolean A = controller.getRawButton(1);
+    boolean B = controller.getRawButton(2);
+    boolean X = controller.getRawButton(3);
+    boolean Y = controller.getRawButton(4);
+    boolean LB = controller.getRawButton(5);
+    boolean RB = controller.getRawButton(6);
+
+    double bot_pivPosition = bot_pivEncoder.getPosition()*-1;
+    System.out.println(bot_pivEncoder.getPosition());
+    double top_pivPosition = top_pivEncoder.getPosition();
+    //System.out.println(top_pivEncoder.getPosition());
 
     //Untested Slider Code 
     
@@ -196,32 +192,49 @@ public class Robot extends TimedRobot {
       // toggle method, hold button to extend and let go to retract (may change)
 
       // Moves the arm to Floor height scoring/pickup position (A button)
-     
-    if(controller.getRawButton(1)==true){
-      if (bot_pivEncoder.getPosition()<5){
-        bot_pivMotor.set(0.15);
-      }
-      else{
-        bot_pivMotor.set(0);
+    
+    if(A||B||X||Y){
+      if(A){
+        if (bot_pivPosition<2){
+          bot_pivMotor.set(0.15);
+        }
+        else{
+          bot_pivMotor.set(0);
+        }
+        
+        if(top_pivPosition<25){
+          top_pivMotor.set(0.15);
+        }
+        else{
+          top_pivMotor.set(0);
+        } 
       }
       
-      if(top_pivEncoder.getPosition()<25){
-        top_pivMotor.set(0.15);
+      if(B){
+        if (bot_pivPosition<4){
+          bot_pivMotor.set(0.15);
+        }
+        else{
+          bot_pivMotor.set(0);
+        }
+        
+        if(top_pivPosition<15){
+          top_pivMotor.set(0.15);
+        }
+        else{
+          top_pivMotor.set(0);
+        }
       }
-      else{
-        top_pivMotor.set(0);
-      } 
-      
     }
-    else if(controller.getRawButton(1)==false){
-      if (bot_pivEncoder.getPosition()>0){
+    else{
+      if (bot_pivPosition>0){
         bot_pivMotor.set(-0.15);
       }
       else{
         bot_pivMotor.set(0);
       }
       
-      if(top_pivEncoder.getPosition()>0){
+      if(top_pivPosition>0){
         top_pivMotor.set(-0.15);
       }
       else{
@@ -229,47 +242,26 @@ public class Robot extends TimedRobot {
       }
     }
     
+    
+    /*
+    
+    
       // Moves the arm to Medium height scoring position (B button)
-    if(controller.getRawButton(2)){
-      B=true;
-    }
-    else{
-      B=false;
-    }
-
-    if(controller.getRawButton(3)){
-      X=true;
-    }
-    else{
-      X=false;
-    }
-
+     
     if(X==true){
-      bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
+      top_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
     }
     else if(B==true){
-      bot_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
+      top_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
     }
     else{
-      bot_pivMotor.set(0);
+      top_pivMotor.set(0);
     }
 
-
-      //Temporary telescoping code 
-    if(controller.getRawButton(5)){
-      LB=true;
-    }
-    else{
-      LB=false;
-    }
-
-    if(controller.getRawButton(6)){
-      RB=true;
-    }
-    else{
-      RB=false;
-    }
-
+   
+      //Temporary telescoping code
+    
+    
     if(LB==true){
       teleMotor.set(0.75);
     }
@@ -279,21 +271,9 @@ public class Robot extends TimedRobot {
     else{
       teleMotor.set(0);
     }
-    
-    
-      /* 
-    if(controller.getRawButton(5)){
-      LB=!LB;
-    }
-    
-    if(LB==true){
-
-    }
     */
-      
     
-
-    
+         
       
     /* 
     
