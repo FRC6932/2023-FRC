@@ -31,6 +31,8 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
 
+import org.ejml.equation.Variable;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -88,6 +90,8 @@ public class Robot extends TimedRobot {
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
   boolean ledToggle = false; 
+  DigitalInput retractLimit = new DigitalInput(0);
+  DigitalInput extendLimit = new DigitalInput(2);
 
 
   @Override
@@ -141,7 +145,7 @@ public class Robot extends TimedRobot {
   }
   private void move_to_position(double set_point, double current_point, CANSparkMax motor) {
     if(current_point<set_point){
-      motor.set(0.05);
+      motor.set(0.1);
     }
     else{
       motor.set(0);
@@ -150,6 +154,14 @@ public class Robot extends TimedRobot {
   private void move_to_rest(double rest_point, double current_point, CANSparkMax motor) {
     if(current_point>rest_point){
       motor.set(-0.05);
+    }
+    else{
+      motor.set(0);
+    }
+  }
+  private void limit_hit(Boolean limit, CANSparkMax motor, double motorspeed) {
+    if(limit==false){
+      motor.set(motorspeed);
     }
     else{
       motor.set(0);
@@ -168,12 +180,14 @@ public class Robot extends TimedRobot {
     boolean X = controller.getRawButton(3);
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
-    boolean RB = controller.getRawButton(6);
+    boolean RB = controller.getRawButtonPressed(6);
+    boolean grabmoving = false;
+    Timer grabTimer = null;
 
-    double bot_pivPosition = (bot_pivEncoder.getPosition())*-1;
-    System.out.println(bot_pivPosition);
+    double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
-    //System.out.println(top_pivEncoder.getPosition());
+    //System.out.println(bot_pivPosition);
+    
 
     //Untested Slider Code 
     
@@ -208,27 +222,56 @@ public class Robot extends TimedRobot {
       // toggle method, hold button to extend and let go to retract (may change)
 
       // Moves the arm to Floor height scoring/pickup position (A button)
-   
+    
     if(A||B||X||Y){
       if(A){
         move_to_position(5, bot_pivPosition, bot_pivMotor);
-        //move_to_position(5, top_pivPosition, top_pivMotor);
+        move_to_position(5, top_pivPosition, top_pivMotor);
       }
-      else if(B){
+      else if(B){ // Moves the arm to Medium height scoring position (B button)
+        move_to_position(20, bot_pivPosition, bot_pivMotor);
+        move_to_position(45, top_pivPosition, top_pivMotor);        
+      }
+      else if(X){ // Moves the arm to Shelf pickup position (X button)
+        
+        move_to_position(35, top_pivPosition, top_pivMotor);        
+      }
+      else if(Y){
         move_to_position(10, bot_pivPosition, bot_pivMotor);
-        //move_to_position(10, top_pivPosition, top_pivMotor);        
+        move_to_position(10, top_pivPosition, top_pivMotor);        
       }
     }
     else{
+      //limit_hit(retractLimit.get(), teleMotor, -0.75);
       move_to_rest(0, bot_pivPosition, bot_pivMotor);
-      //move_to_rest(0, top_pivPosition, top_pivMotor);
+      move_to_rest(0, top_pivPosition, top_pivMotor);
     }
-    /*
+
+    if(RB){
+      if(grabmoving==false){
+        if(grabTimer==null){
+          grabMotor.set(0.01);
+          grabmoving = true;
+          grabTimer = new Timer();
+          grabTimer.start();
+        }
+        else{
+          grabMotor.set(-0.01);
+          grabmoving = true;
+          grabTimer.reset();
+        }
+      }
+      else{
+        grabMotor.set(0);
+        grabmoving = false;
+      }
+    }
     
     
-  
     
-      // Moves the arm to Medium height scoring position (B button)
+  /*
+    
+      
      
     if(X==true){
       bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
@@ -239,8 +282,8 @@ public class Robot extends TimedRobot {
     else{
       bot_pivMotor.set(0);
     }
-
     
+    */
       //Temporary telescoping code
     
     
@@ -261,7 +304,7 @@ public class Robot extends TimedRobot {
     
     
 
-      // Moves the arm to Shelf pickup position (X button)
+      
     if(controller.getRawButton(3)){
       if (bot_pivEncoder.getPosition() < 5){
         bot_pivMotor.set(0.35);
