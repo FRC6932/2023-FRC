@@ -44,7 +44,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Robot extends TimedRobot {
   //starttime
-  private double startTime;
+  
 
   // Controls are established here
   private DifferentialDrive m_myRobot;
@@ -84,6 +84,8 @@ public class Robot extends TimedRobot {
   // Set telescoping
   DigitalInput retractLimit = new DigitalInput(0);
   DigitalInput extendLimit = new DigitalInput(2);
+
+  private final Timer m_timer = new Timer();
 
   @Override
   public void robotInit() {
@@ -261,21 +263,35 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-  startTime = Timer.getFPGATimestamp();
+
+    m_timer.reset();
 
   }
 
 
   @Override
   public void autonomousPeriodic() {
-    double time = Timer.getFPGATimestamp();
+  
+    double top_pivPosition = top_pivEncoder.getPosition();
+    double bot_pivPosition = bot_pivEncoder.getPosition();
+    double time = m_timer.get();
     
-    if (time - startTime < 3) {
-    m_myRobot.arcadeDrive(.4, 0); //Drive forward for 3 seconds at 40% speed
+    if (time < 4) {
+      move_to_position(5, bot_pivPosition, bot_pivMotor);
+      move_to_position(5, top_pivPosition, top_pivMotor);
+        
+  
+    } else if((time > 4) && (time < 7)) {
+      grabMotor.set(-0.1);
+      
+
+    } else if((time > 7) && (time < 10)) {
+      grabMotor.set(0);
+      m_myRobot.arcadeDrive(-0.5, 0,false); 
+    } else if((time > 10) && (time < 15)) {
     
-  } else {
-    m_myRobot.arcadeDrive(0, 0);
-  }
+      m_myRobot.arcadeDrive(0, 0,false); 
+    } 
 
 /*
   @Override
