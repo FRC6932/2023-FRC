@@ -175,7 +175,7 @@ public class Robot extends TimedRobot {
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
     boolean RB = controller.getRawButton(6);
-    boolean grabmoving = false;
+    
 
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
@@ -250,18 +250,9 @@ public class Robot extends TimedRobot {
     }
     else{
       bot_pivMotor.set(0);
-<<<<<<< Updated upstream
-    }
-    
-    
-      //Temporary telescoping code
-    
-    
-=======
     } */
       
     //Temporary telescoping code    
->>>>>>> Stashed changes
     if(LB==true){
       teleMotor.set(0.75);
     }
@@ -271,21 +262,8 @@ public class Robot extends TimedRobot {
     else{
       teleMotor.set(0);
     }
-<<<<<<< Updated upstream
-    */
-    
-         
-      
-    /* 
-    
-    
-
-      
-    if(controller.getRawButton(3)){
-=======
     
     /* if(controller.getRawButton(3)){
->>>>>>> Stashed changes
       if (bot_pivEncoder.getPosition() < 5){
         bot_pivMotor.set(0.35);
       }
