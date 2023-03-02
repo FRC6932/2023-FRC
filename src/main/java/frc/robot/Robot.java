@@ -212,12 +212,12 @@ public class Robot extends TimedRobot {
       else if(X){   // Moves the arm to Shelf pickup position (X button)
         move_to_position(35, top_pivPosition, top_pivMotor);        
       }
-      else if(Y){
+      else if(Y){   // Moves the arm to High height scoring position (Y button)
         move_to_position(10, bot_pivPosition, bot_pivMotor);
         move_to_position(10, top_pivPosition, top_pivMotor);        
       }
     }
-    else{
+    else{   // Moves the arm back to its resting position (No button)
       //limit_hit(retractLimit.get(), teleMotor, -0.75);
       move_to_rest(0, bot_pivPosition, bot_pivMotor);
       move_to_rest(0, top_pivPosition, top_pivMotor);
@@ -256,35 +256,6 @@ public class Robot extends TimedRobot {
       teleMotor.set(0);
     }
     
-    /* if(controller.getRawButton(3)){
-      if (bot_pivEncoder.getPosition() < 5){
-        bot_pivMotor.set(0.35);
-      }
-      else{
-        bot_pivMotor.set(0);
-      }
-    }
-    else{
-      bot_pivMotor.set(0);
-    }
-
-      // Moves the arm to High height scoring position (Y button)
-    if(controller.getRawButton(4)){
-      if (bot_pivEncoder.getPosition() < 5){
-        bot_pivMotor.set(0.35);
-      }
-      else{
-        bot_pivMotor.set(0);
-      }
-    }
-    else{
-      bot_pivMotor.set(0);
-    }
-    */
-    /*  LED Code
-    if (m_joystick.getRawButton(12)){} */      
-    
-  
   } 
   // Autonomous
 
