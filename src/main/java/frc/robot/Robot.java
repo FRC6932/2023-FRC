@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
-//import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
 
 import org.ejml.equation.Variable;
@@ -37,6 +36,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+//import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 /* 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.I2C;
@@ -49,18 +50,13 @@ public class Robot extends TimedRobot {
   //starttime
   private double startTime;
   private ShuffleboardTab tab;
+
   // Controls are established here
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
-
-  // logitech gamepad F310 controller established (untested)
   private Joystick controller;
-  // end
-  
-  // Variables for Motors and Cameras are established below
-  
 
-    // Drive Motor Variables
+  // Drive Motor Variables
   private static final int left1DeviceID = 1; 
   private CANSparkMax m_left1Motor;
   private static final int left2DeviceID = 2;
@@ -70,7 +66,7 @@ public class Robot extends TimedRobot {
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
 
-    // Arm Moter Variables
+  // Arm Moter Variables
   private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
@@ -84,39 +80,39 @@ public class Robot extends TimedRobot {
   private static final int grabDeviceID = 8; //Grabber motor for arm 
   private CANSparkMax grabMotor;
   
-    // Set cameras
+  // Set cameras
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
+  // Set LEDs
   boolean ledToggle = false; 
+
+  // Set telescoping
   DigitalInput retractLimit = new DigitalInput(0);
   DigitalInput extendLimit = new DigitalInput(2);
 
-
   @Override
   public void robotInit() {
-    tab = Shuffleboard.getTab("SmartDashboard");
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
-    
-    // Robot Drive is established here 
 
-      // Drive Motor variables are established
+    // Drive Motor variables are established
     m_left1Motor = new CANSparkMax(left1DeviceID, MotorType.kBrushed);
     m_left2Motor = new CANSparkMax(left2DeviceID, MotorType.kBrushed);
     m_right1Motor = new CANSparkMax(right1DeviceID, MotorType.kBrushed);
     m_right2Motor = new CANSparkMax(right2DeviceID, MotorType.kBrushed);
-      // Left and Right motors are put into a group so they move the same direction and speed for the arcade drive
+
+    // Left and Right motors are grouped so they move the same direction and speed for the arcade drive
     MotorControllerGroup leftMotor = new MotorControllerGroup(m_left1Motor, m_left2Motor);
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
-      // Inverts the right moters so they move the opposite direction (makes the robot go forward instead of turn)
+
+    // Invert right side of the drivetrain so that positive voltage results 
+    // in both sides moving forward (forward instead of turn)
     rightMotor.setInverted(true);   
+
     // Drive is set to use the left and right motors
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
 
-      // Arm Motor variables are established
+    // Arm Motor variables are established
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
@@ -125,24 +121,22 @@ public class Robot extends TimedRobot {
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
-
     // Establishes controllers
     m_joystick = new Joystick(0);
-
-    // logitech gamepade F310 (untested)
     controller = new Joystick(1);
-    
 
     // Make the cameras work
     server = CameraServer.getServer();
 
-    // startTime = Timer.getFPGATimestamp(); !
-    // SlewRateLimiter l = new SlewRateLimiter(0.5);
+    /* startTime = Timer.getFPGATimestamp(); !
+    // SlewRateLimiter l = new SlewRateLimiter(0.5); */
+
     bot_pivEncoder.setPosition(0);
     top_pivEncoder.setPosition(0);
-
-    
   }
+
+  // Create functions for arm movement
+  // (input desired encoder position, encoder position, and motor)
   private void move_to_position(double set_point, double current_point, CANSparkMax motor) {
     if(current_point<set_point){
       motor.set(0.1);
@@ -159,6 +153,7 @@ public class Robot extends TimedRobot {
       motor.set(0);
     }
   }
+
   private void limit_hit(Boolean limit, CANSparkMax motor, double motorspeed) {
     if(limit==false){
       motor.set(motorspeed);
@@ -170,11 +165,10 @@ public class Robot extends TimedRobot {
   
 
 
-
   @Override
   public void teleopPeriodic() {
   
-      // Establishes variables
+    // Establishes variables
     boolean A = controller.getRawButton(1);
     boolean B = controller.getRawButton(2);
     boolean X = controller.getRawButton(3);
@@ -185,22 +179,19 @@ public class Robot extends TimedRobot {
 
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
-    //System.out.println(bot_pivPosition);
-    
 
-    //Untested Slider Code 
-    
-    /* 
+    /* Untested Slider Code 
     double axis_value = m_joystick.getRawAxis(3);
     double mutliplier = ((axis_value + 1)/2);
     System.out.format("%.2f%n",mutliplier);
     */
+    
    // Robot drive 
-      // Uses the joystick for driving
+      // Use joystick for driving
     m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
 
     // Cameras
-      // When the trigger on the joystick is held, the camera shown will change from the drive to the arm camera
+      // When the trigger on the joystick is held, display will change from drive camera to arm camera
     if (m_joystick.getRawButtonPressed(1)) {
       System.out.println("Setting camera 0");
       server.setSource(cam0);
@@ -209,30 +200,23 @@ public class Robot extends TimedRobot {
       System.out.println("Setting camera 1");
       server.setSource(cam1);
     }
-    
+
+    // Reset encoder values ("Back" button)
     if (controller.getRawButtonPressed(7)){
       bot_pivEncoder.setPosition(0);
       top_pivEncoder.setPosition(0);
     }
-    
-    //
-    
-    // Arm Controls (edit later when design and motors ready)
-      // toggle method, hold button to extend and let go to retract (may change)
-
-      // Moves the arm to Floor height scoring/pickup position (A button)
-    
+     
     if(A||B||X||Y){
-      if(A){
+      if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
         move_to_position(5, bot_pivPosition, bot_pivMotor);
         move_to_position(5, top_pivPosition, top_pivMotor);
       }
-      else if(B){ // Moves the arm to Medium height scoring position (B button)
+      else if(B){   // Moves the arm to Medium height scoring position (B button)
         move_to_position(20, bot_pivPosition, bot_pivMotor);
         move_to_position(45, top_pivPosition, top_pivMotor);        
       }
-      else if(X){ // Moves the arm to Shelf pickup position (X button)
-        
+      else if(X){   // Moves the arm to Shelf pickup position (X button)
         move_to_position(35, top_pivPosition, top_pivMotor);        
       }
       else if(Y){
@@ -258,11 +242,7 @@ public class Robot extends TimedRobot {
     
     
     
-  /*
-    
-      
-     
-    if(X==true){
+  /* if(X==true){
       bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
     }
     else if(B==true){
@@ -270,12 +250,18 @@ public class Robot extends TimedRobot {
     }
     else{
       bot_pivMotor.set(0);
+<<<<<<< Updated upstream
     }
     
     
       //Temporary telescoping code
     
     
+=======
+    } */
+      
+    //Temporary telescoping code    
+>>>>>>> Stashed changes
     if(LB==true){
       teleMotor.set(0.75);
     }
@@ -285,6 +271,7 @@ public class Robot extends TimedRobot {
     else{
       teleMotor.set(0);
     }
+<<<<<<< Updated upstream
     */
     
          
@@ -295,6 +282,10 @@ public class Robot extends TimedRobot {
 
       
     if(controller.getRawButton(3)){
+=======
+    
+    /* if(controller.getRawButton(3)){
+>>>>>>> Stashed changes
       if (bot_pivEncoder.getPosition() < 5){
         bot_pivMotor.set(0.35);
       }
@@ -320,26 +311,15 @@ public class Robot extends TimedRobot {
     }
     */
     /*  LED Code
-    if (m_joystick.getRawButton(12)){
-
-      
-
-    }
-    */      
-
+    if (m_joystick.getRawButton(12)){} */      
     
-    
-
-
-    } 
-
   
+  } 
   // Autonomous
 
   @Override
   public void autonomousInit() {
   startTime = Timer.getFPGATimestamp();
-  
 
   }
 
@@ -354,9 +334,6 @@ public class Robot extends TimedRobot {
   } else {
     m_myRobot.arcadeDrive(0, 0);
   }
-
-      
-
 
 /*
   @Override
