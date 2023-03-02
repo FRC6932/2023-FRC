@@ -103,7 +103,6 @@ public class Robot extends TimedRobot {
     // Invert right side of the drivetrain so that positive voltage results 
     // in both sides moving forward (forward instead of turn)
     rightMotor.setInverted(true);   
-
     // Drive is set to use the left and right motors
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
 
