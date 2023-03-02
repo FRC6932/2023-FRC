@@ -180,9 +180,8 @@ public class Robot extends TimedRobot {
     boolean X = controller.getRawButton(3);
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
-    boolean RB = controller.getRawButtonPressed(6);
+    boolean RB = controller.getRawButton(6);
     boolean grabmoving = false;
-    Timer grabTimer = null;
 
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
@@ -248,23 +247,13 @@ public class Robot extends TimedRobot {
     }
 
     if(RB){
-      if(grabmoving==false){
-        if(grabTimer==null){
-          grabMotor.set(0.01);
-          grabmoving = true;
-          grabTimer = new Timer();
-          grabTimer.start();
-        }
-        else{
-          grabMotor.set(-0.01);
-          grabmoving = true;
-          grabTimer.reset();
-        }
-      }
-      else{
-        grabMotor.set(0);
-        grabmoving = false;
-      }
+      grabMotor.set(0.1);
+    }
+    else if(controller.getRawAxis(3)>0.5){
+      grabMotor.set(-0.1);
+    }
+    else{
+      grabMotor.set(0);
     }
     
     
@@ -283,7 +272,7 @@ public class Robot extends TimedRobot {
       bot_pivMotor.set(0);
     }
     
-    */
+    
       //Temporary telescoping code
     
     
@@ -296,7 +285,7 @@ public class Robot extends TimedRobot {
     else{
       teleMotor.set(0);
     }
-    
+    */
     
          
       
