@@ -21,20 +21,16 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
-import java.util.List;
 
-import org.ejml.equation.Variable;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
+//import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -49,7 +45,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Robot extends TimedRobot {
   //starttime
   private double startTime;
-  private ShuffleboardTab tab;
 
   // Controls are established here
   private DifferentialDrive m_myRobot;
@@ -70,11 +65,9 @@ public class Robot extends TimedRobot {
   private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
-  private SparkMaxPIDController bot_pivPID;
   private static final int top_pivDeviceID = 6; //Top of arm motor pivot 
   private CANSparkMax top_pivMotor;
   private RelativeEncoder top_pivEncoder;
-  private SparkMaxPIDController top_pivPID;
   private static final int teleDeviceID = 7; //Telescoping section of arm 
   private CANSparkMax teleMotor;
   private static final int grabDeviceID = 8; //Grabber motor for arm 
