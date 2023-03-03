@@ -291,30 +291,8 @@ public class Robot extends TimedRobot {
     else{
       grabMotor.set(0);
     }
+  
     
-    
-    /* 
-    if(X==true){
-      top_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
-    }
-    else if(B==true){
-      top_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
-    }
-    else{
-      top_pivMotor.set(0);
-    } 
-      
-    //Temporary telescoping code    
-    if(Y==true){
-      teleMotor.set(0.75);
-    }
-    else if(A==true){
-      teleMotor.set(-0.75);
-    }
-    else{
-      teleMotor.set(0);
-    }
-    */
   } 
   // Autonomous
 
