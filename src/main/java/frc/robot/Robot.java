@@ -166,8 +166,6 @@ public class Robot extends TimedRobot {
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
     boolean RB = controller.getRawButton(6);
-    
-
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
 
@@ -268,22 +266,22 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
   
+    // establish variables
     double top_pivPosition = top_pivEncoder.getPosition();
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double time = m_timer.get();
     
-    if (time < 4) {
+    if (time < 4) {     // arm moves to floor height for the first 4 seconds 
       move_to_position(5, bot_pivPosition, bot_pivMotor);
       move_to_position(5, top_pivPosition, top_pivMotor);
         
-  
     } else if((time > 4) && (time < 7)) {
       grabMotor.set(-0.1);
       
-
     } else if((time > 7) && (time < 10)) {
       grabMotor.set(0);
       m_myRobot.arcadeDrive(-0.5, 0,false); 
+      
     } else if((time > 10) && (time < 15)) {
     
       m_myRobot.arcadeDrive(0, 0,false); 
