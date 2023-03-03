@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.SparkMaxPIDController;
@@ -79,7 +78,9 @@ public class Robot extends TimedRobot {
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
   // Set LEDs
-  boolean ledToggle = false; 
+  private boolean ledToggle;
+  private boolean manualPositionToggle;
+  private boolean autoPositionToggle;
 
   // Set telescoping
   DigitalInput retractLimit = new DigitalInput(0);
@@ -122,8 +123,8 @@ public class Robot extends TimedRobot {
     // Make the cameras work
     server = CameraServer.getServer();
 
-    /* startTime = Timer.getFPGATimestamp(); !
-    // SlewRateLimiter l = new SlewRateLimiter(0.5); */
+    manualPositionToggle = false;
+    autoPositionToggle = false;
 
     bot_pivEncoder.setPosition(0);
     top_pivEncoder.setPosition(0);
@@ -156,6 +157,15 @@ public class Robot extends TimedRobot {
       motor.set(0);
     }
   }
+
+  public boolean POVAngle(int angle, Joystick input_device) {
+    if(input_device.getPOV()==angle){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
   
 
 
@@ -169,7 +179,10 @@ public class Robot extends TimedRobot {
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
     boolean RB = controller.getRawButton(6);
-    
+    boolean padUp = POVAngle(0, controller);
+    boolean padRight = POVAngle(90, controller);
+    boolean padDown = POVAngle(180, controller);
+    boolean padLeft = POVAngle(270, controller);
 
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
@@ -195,35 +208,82 @@ public class Robot extends TimedRobot {
       server.setSource(cam1);
     }
 
-    // Reset encoder values ("Back" button)
-    if (controller.getRawButtonPressed(7)){
+    // Reset encoder values ("left joystick" button)
+    if (controller.getRawButtonPressed(9)){
       bot_pivEncoder.setPosition(0);
       top_pivEncoder.setPosition(0);
     }
-     
-    if(A||B||X||Y){
-      if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
-        move_to_position(5, bot_pivPosition, bot_pivMotor);
-        move_to_position(5, top_pivPosition, top_pivMotor);
-      }
-      else if(B){   // Moves the arm to Medium height scoring position (B button)
-        move_to_position(20, bot_pivPosition, bot_pivMotor);
-        move_to_position(45, top_pivPosition, top_pivMotor);        
-      }
-      else if(X){   // Moves the arm to Shelf pickup position (X button)
-        move_to_position(35, top_pivPosition, top_pivMotor);        
-      }
-      else if(Y){   // Moves the arm to High height scoring position (Y button)
-        move_to_position(10, bot_pivPosition, bot_pivMotor);
-        move_to_position(10, top_pivPosition, top_pivMotor);        
-      }
-    }
-    else{   // Moves the arm back to its resting position (No button)
-      //limit_hit(retractLimit.get(), teleMotor, -0.75);
-      move_to_rest(0, bot_pivPosition, bot_pivMotor);
-      move_to_rest(0, top_pivPosition, top_pivMotor);
+
+    if(controller.getRawButtonPressed(7)){
+      manualPositionToggle = true;
+      autoPositionToggle = false;
     }
 
+    if(controller.getRawButtonPressed(8)){
+      autoPositionToggle = true;
+      manualPositionToggle = false;
+    }
+    
+    if(autoPositionToggle){
+      if(A||B||X||Y){
+        if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
+          move_to_position(5, bot_pivPosition, bot_pivMotor);
+          move_to_position(5, top_pivPosition, top_pivMotor);
+        }
+        else if(B){   // Moves the arm to Medium height scoring position (B button)
+          move_to_position(20, bot_pivPosition, bot_pivMotor);
+          move_to_position(45, top_pivPosition, top_pivMotor);  
+          limit_hit(extendLimit.get(), teleMotor, 0.75);      
+        }
+        else if(X){   // Moves the arm to Shelf pickup position (X button)
+          move_to_position(35, top_pivPosition, top_pivMotor); 
+          limit_hit(extendLimit.get(), teleMotor, 0.75);       
+        }
+        else if(Y){   // Moves the arm to High height scoring position (Y button)
+          move_to_position(10, bot_pivPosition, bot_pivMotor);
+          move_to_position(10, top_pivPosition, top_pivMotor);
+          limit_hit(extendLimit.get(), teleMotor, 0.75);        
+        }
+      }
+      else{   // Moves the arm back to its resting position (No button)
+        limit_hit(retractLimit.get(), teleMotor, -0.75);
+        move_to_rest(0, bot_pivPosition, bot_pivMotor);
+        move_to_rest(0, top_pivPosition, top_pivMotor);
+      }
+    }
+    else if(manualPositionToggle){
+      if(padUp){
+        top_pivMotor.set(0.15);
+      }
+      else if(padDown&&top_pivPosition>0){
+        top_pivMotor.set(-0.15);
+      }
+      else{
+        top_pivMotor.set(0);
+      }
+
+      if(padLeft){
+        bot_pivMotor.set(0.1);
+      }
+      else if(padRight&&bot_pivPosition>0){
+        bot_pivMotor.set(-0.1);
+      }
+      else{
+        bot_pivMotor.set(0);
+      }
+      
+      if(LB&&extendLimit.get()==false){
+        teleMotor.set(0.5);
+      }
+      else if(controller.getRawAxis(2)>0.5&&retractLimit.get()==false){
+        teleMotor.set(-0.5);
+      }
+      else{
+        teleMotor.set(0);
+      }
+    }
+    
+    
     if(RB){
       grabMotor.set(0.1);
     }
@@ -235,28 +295,28 @@ public class Robot extends TimedRobot {
     }
     
     
-    
-  /* if(X==true){
-      bot_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
+    /* 
+    if(X==true){
+      top_pivMotor.set(0.15); //top piv at 0.5 , bot piv at 0.15
     }
     else if(B==true){
-      bot_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
+      top_pivMotor.set(-0.15); // top piv at -0.25 , bot piv at -0.15
     }
     else{
-      bot_pivMotor.set(0);
-    } */
+      top_pivMotor.set(0);
+    } 
       
     //Temporary telescoping code    
-    if(LB==true){
+    if(Y==true){
       teleMotor.set(0.75);
     }
-    else if(RB==true){
+    else if(A==true){
       teleMotor.set(-0.75);
     }
     else{
       teleMotor.set(0);
     }
-    
+    */
   } 
   // Autonomous
 
