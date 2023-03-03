@@ -26,8 +26,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
-
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.SparkMaxPIDController;
@@ -43,15 +41,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 */
 
 public class Robot extends TimedRobot {
-  //starttime
-  
 
-  // Controls are established here
+  // set control variables
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
   private Joystick controller;
 
-  // Drive Motor Variables
+  // set drive motor variables
   private static final int left1DeviceID = 1; 
   private CANSparkMax m_left1Motor;
   private static final int left2DeviceID = 2;
@@ -61,7 +57,7 @@ public class Robot extends TimedRobot {
   private static final int right2DeviceID = 3;
   private CANSparkMax m_right2Motor; 
 
-  // Arm Moter Variables
+  // set arm motor variables
   private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
@@ -73,40 +69,41 @@ public class Robot extends TimedRobot {
   private static final int grabDeviceID = 8; //Grabber motor for arm 
   private CANSparkMax grabMotor;
   
-  // Set cameras
+  // set cameras
   VideoSink server;
   UsbCamera cam0 = CameraServer.startAutomaticCapture(0);
   UsbCamera cam1 = CameraServer.startAutomaticCapture(1);
 
-  // Set LEDs
+  // set LEDs
   boolean ledToggle = false; 
 
-  // Set telescoping
+  // set telescoping
   DigitalInput retractLimit = new DigitalInput(0);
   DigitalInput extendLimit = new DigitalInput(2);
 
+  // set timer
   private final Timer m_timer = new Timer();
 
   @Override
   public void robotInit() {
 
-    // Drive Motor variables are established
+    // establish drive motor variables
     m_left1Motor = new CANSparkMax(left1DeviceID, MotorType.kBrushed);
     m_left2Motor = new CANSparkMax(left2DeviceID, MotorType.kBrushed);
     m_right1Motor = new CANSparkMax(right1DeviceID, MotorType.kBrushed);
     m_right2Motor = new CANSparkMax(right2DeviceID, MotorType.kBrushed);
 
-    // Left and Right motors are grouped so they move the same direction and speed for the arcade drive
+    // group Left and Right motors so they move the same direction and speed for the arcade drive
     MotorControllerGroup leftMotor = new MotorControllerGroup(m_left1Motor, m_left2Motor);
     MotorControllerGroup rightMotor = new MotorControllerGroup(m_right1Motor, m_right2Motor);
 
-    // Invert right side of the drivetrain so that positive voltage results 
+    // invert right side of the drivetrain so that positive voltage results 
     // in both sides moving forward (forward instead of turn)
     rightMotor.setInverted(true);   
-    // Drive is set to use the left and right motors
+    // drive is set to use the left and right motors
     m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
 
-    // Arm Motor variables are established
+    // establish arm motor variables
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
@@ -115,11 +112,11 @@ public class Robot extends TimedRobot {
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
-    // Establishes controllers
+    // establish controller variablse
     m_joystick = new Joystick(0);
     controller = new Joystick(1);
 
-    // Make the cameras work
+    // make cameras work
     server = CameraServer.getServer();
 
     /* startTime = Timer.getFPGATimestamp(); !
@@ -129,7 +126,7 @@ public class Robot extends TimedRobot {
     top_pivEncoder.setPosition(0);
   }
 
-  // Create functions for arm movement
+  // create functions for arm movement
   // (input desired encoder position, encoder position, and motor)
   private void move_to_position(double set_point, double current_point, CANSparkMax motor) {
     if(current_point<set_point){
@@ -162,7 +159,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
   
-    // Establishes variables
+    // establish variables
     boolean A = controller.getRawButton(1);
     boolean B = controller.getRawButton(2);
     boolean X = controller.getRawButton(3);
