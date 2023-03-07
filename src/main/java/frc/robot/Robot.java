@@ -2,19 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// THIS IS 2023 ROBOT CODE
+// 2023 WORM-E Robot Code
 
-// Notes for robot movement
-// x = left and right (not used)
-// y = forward and backward
-// z = twist (used for turning)
+  // Notes for robot movement
+  // x = left and right (not used)
+  // y = forward and backward
+  // z = twist (used for turning)
 
-// Notes for Logitech Gamepad F310 Buttons
-// A = 1, B = 2, X = 3, Y = 4, Left Bumper = 5, Right Bumper = 6, Back = 7, Start = 8, 
-// Left Joystick Button = 9, Right Joystick Button= 10
-// Joysticks have X and Y axes, Triggers are axes
+  // Notes for Logitech Gamepad F310 Buttons
+  // A = 1, B = 2, X = 3, Y = 4, Left Bumper = 5, Right Bumper = 6, Back = 7, Start = 8, 
+  // Left Joystick Button = 9, Right Joystick Button= 10
+  // Joysticks have X and Y axes, Triggers are axes
 
-// Required Packages
+// External Imports
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -25,6 +25,9 @@ import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+//import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -39,6 +42,9 @@ import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 */
+
+  // Custom Imports
+import frc.robot.SMART_Custom_Methods; //not working, don't know why
 
 public class Robot extends TimedRobot {
 
@@ -78,13 +84,25 @@ public class Robot extends TimedRobot {
   private boolean ledToggle;
   private boolean manualPositionToggle;
   private boolean autoPositionToggle;
+  private boolean diognosticToggle;
 
-  // set telescoping
+  // Set telescoping
   DigitalInput retractLimit = new DigitalInput(0);
   DigitalInput extendLimit = new DigitalInput(2);
 
+  // Sets autos
+  private static final String defaultAuto = "Default";  // Just drives out
+  private static final String Auto1 = "Auto1";  // Drives onto charger station and stays on
+  private static final String Auto2 = "Auto2";  // Places cube on middle and drives out
+  private static final String Auto3 = "Auto3";  // Places cube on high and drives out
+  private String autoSelected;
+  private final SendableChooser<String> chooser = new SendableChooser<>();
+    
+  
+
   // set timer
-  private final Timer m_timer = new Timer();
+  double startTime;
+  Timer grabTimer;
 
   @Override
   public void robotInit() {
@@ -110,6 +128,7 @@ public class Robot extends TimedRobot {
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
+    top_pivMotor.setInverted(true);
     top_pivEncoder = top_pivMotor.getEncoder();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
@@ -121,34 +140,41 @@ public class Robot extends TimedRobot {
     // make cameras work
     server = CameraServer.getServer();
 
-    manualPositionToggle = false;
+    manualPositionToggle = true;
     autoPositionToggle = false;
+    diognosticToggle = false;
 
     bot_pivEncoder.setPosition(0);
     top_pivEncoder.setPosition(0);
+
+    chooser.setDefaultOption("Just Drive Out", defaultAuto);
+    chooser.addOption("Over Charge Station", Auto1);
+    chooser.addOption("Place Cube on Middle and Drive Out", Auto2);
+    chooser.addOption("Place Cube on High and Drive Out", Auto3);
+    SmartDashboard.putData("Auto choices", chooser);
   }
 
-  // create functions for arm movement
+  // create functions for arm movement (Will be imported from another file later)
   // (input desired encoder position, encoder position, and motor)
-  private void move_to_position(double set_point, double current_point, CANSparkMax motor) {
-    if(current_point<set_point){
-      motor.set(0.1);
+  private void move_to_position(double set_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
+    if(current_point<set_point&&inputCondition){
+      motor.set(motorspeed);
     }
     else{
       motor.set(0);
     }
   }
-  private void move_to_rest(double rest_point, double current_point, CANSparkMax motor) {
-    if(current_point>rest_point){
-      motor.set(-0.05);
+  private void move_to_rest(double rest_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
+    if(current_point>rest_point&&inputCondition){
+      motor.set(motorspeed); //input a negative
     }
     else{
       motor.set(0);
     }
   }
 
-  private void limit_hit(Boolean limit, CANSparkMax motor, double motorspeed) {
-    if(limit==false){
+  private void limit_hit(Boolean limit, CANSparkMax motor, double motorspeed, boolean inputCondition) {
+    if(limit==false&&inputCondition){
       motor.set(motorspeed);
     }
     else{
@@ -163,6 +189,48 @@ public class Robot extends TimedRobot {
     else{
       return false;
     }
+  }
+
+  public boolean diognosticConditions(boolean inputCondition, boolean toggle) { // Make toggle diognosticToggle whenever called
+    if(toggle){
+      return true;
+    }
+    else{
+      return inputCondition;
+    }
+  }
+
+  public void graberMove(String gamePiece, CANSparkMax motor, Timer grabTimer, String state) {
+    grabTimer.start(); // might not work
+    if(gamePiece=="Cube"||gamePiece=="cube"){
+      if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="open"){
+        motor.set(0.3);
+      }
+      else if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="closed"){
+        motor.set(-0.3);
+      }
+      else{
+        grabTimer.stop();
+        grabTimer.reset();
+        motor.set(0);
+      }
+    }
+    else if(gamePiece=="Cone"||gamePiece=="cone"){
+      if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="open"){
+        motor.set(0.3);
+      }
+      else if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="closed"){
+        motor.set(-0.3);
+      }
+      else{
+        grabTimer.stop();
+        grabTimer.reset();
+        motor.set(0);
+      }
+    }
+    
+
+
   }
   
 
@@ -185,6 +253,10 @@ public class Robot extends TimedRobot {
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
 
+    SmartDashboard.putNumber("Top Pivot Position", top_pivPosition);
+    SmartDashboard.putNumber("Bottom Pivot Position", bot_pivPosition);
+
+
     /* Untested Slider Code 
     double axis_value = m_joystick.getRawAxis(3);
     double mutliplier = ((axis_value + 1)/2);
@@ -193,7 +265,13 @@ public class Robot extends TimedRobot {
     
    // Robot drive 
       // Use joystick for driving
-    m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
+    if(m_joystick.getRawButton(2)){
+      m_myRobot.arcadeDrive(-m_joystick.getY()*0.4, m_joystick.getZ()*0.4);
+    }
+    else{
+      m_myRobot.arcadeDrive(-m_joystick.getY(), m_joystick.getZ()*0.5);
+    }
+    
 
     // Cameras
       // When the trigger on the joystick is held, display will change from drive camera to arm camera
@@ -221,39 +299,43 @@ public class Robot extends TimedRobot {
       autoPositionToggle = true;
       manualPositionToggle = false;
     }
+
+    if(controller.getRawButtonPressed(10)){
+      diognosticToggle = !diognosticToggle;
+    }
     
     if(autoPositionToggle){
       if(A||B||X||Y){
         if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
-          move_to_position(5, bot_pivPosition, bot_pivMotor);
-          move_to_position(5, top_pivPosition, top_pivMotor);
+          move_to_position(6, top_pivPosition, top_pivMotor, 0.1,true);
+          move_to_position(5, bot_pivPosition, bot_pivMotor, 0.1, top_pivPosition>5);
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
-          move_to_position(20, bot_pivPosition, bot_pivMotor);
-          move_to_position(45, top_pivPosition, top_pivMotor);  
-          limit_hit(extendLimit.get(), teleMotor, 0.75);      
+          move_to_position(30, top_pivPosition, top_pivMotor, 0.25,true);
+          //move_to_position(20, bot_pivPosition, bot_pivMotor, 0.1, top_pivPosition>5);
+          limit_hit(extendLimit.get(), teleMotor, 0.75,top_pivPosition>20);      
         }
         else if(X){   // Moves the arm to Shelf pickup position (X button)
-          move_to_position(35, top_pivPosition, top_pivMotor); 
-          limit_hit(extendLimit.get(), teleMotor, 0.75);       
+          move_to_position(35, top_pivPosition, top_pivMotor, 0.1,true); 
+          limit_hit(extendLimit.get(), teleMotor, 0.75,true);       
         }
         else if(Y){   // Moves the arm to High height scoring position (Y button)
-          move_to_position(10, bot_pivPosition, bot_pivMotor);
-          move_to_position(10, top_pivPosition, top_pivMotor);
-          limit_hit(extendLimit.get(), teleMotor, 0.75);        
+          move_to_position(10, bot_pivPosition, bot_pivMotor, 0.1,true);
+          move_to_position(10, top_pivPosition, top_pivMotor, 0.1, top_pivPosition>5);
+          limit_hit(extendLimit.get(), teleMotor, 0.75,true);        
         }
       }
       else{   // Moves the arm back to its resting position (No button)
-        limit_hit(retractLimit.get(), teleMotor, -0.75);
-        move_to_rest(0, bot_pivPosition, bot_pivMotor);
-        move_to_rest(0, top_pivPosition, top_pivMotor);
+        limit_hit(retractLimit.get(), teleMotor, -0.75,true);
+        move_to_rest(0, top_pivPosition, top_pivMotor, -0.1,extendLimit.get()==false);
+        move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.1,top_pivPosition<5);
       }
     }
     else if(manualPositionToggle){
       if(padUp){
         top_pivMotor.set(0.15);
       }
-      else if(padDown&&top_pivPosition>0){
+      else if(padDown&&diognosticConditions(top_pivPosition>0, diognosticToggle)){
         top_pivMotor.set(-0.15);
       }
       else{
@@ -263,7 +345,7 @@ public class Robot extends TimedRobot {
       if(padLeft){
         bot_pivMotor.set(0.1);
       }
-      else if(padRight&&bot_pivPosition>0){
+      else if(padRight&&diognosticConditions(bot_pivPosition>0, diognosticToggle)){
         bot_pivMotor.set(-0.1);
       }
       else{
@@ -273,7 +355,7 @@ public class Robot extends TimedRobot {
       if(LB&&extendLimit.get()==false){
         teleMotor.set(0.5);
       }
-      else if(controller.getRawAxis(2)>0.5&&retractLimit.get()==false){
+      else if(controller.getRawAxis(2)>0.5&&diognosticConditions(retractLimit.get()==false, diognosticToggle)){
         teleMotor.set(-0.5);
       }
       else{
@@ -283,10 +365,10 @@ public class Robot extends TimedRobot {
     
     
     if(RB){
-      grabMotor.set(0.1);
+      grabMotor.set(0.3);
     }
     else if(controller.getRawAxis(3)>0.5){
-      grabMotor.set(-0.1);
+      grabMotor.set(-0.3);
     }
     else{
       grabMotor.set(0);
@@ -298,43 +380,53 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    autoSelected = chooser.getSelected();
+    System.out.println("Auto Selected: "+ autoSelected);
+    startTime = Timer.getFPGATimestamp();
 
-    m_timer.reset();
 
   }
 
 
   @Override
   public void autonomousPeriodic() {
-  
     // establish variables
     double top_pivPosition = top_pivEncoder.getPosition();
     double bot_pivPosition = bot_pivEncoder.getPosition();
-    double time = m_timer.get();
-    
-    if (time < 4) {     // arm moves to floor height for the first 4 seconds 
-      move_to_position(5, bot_pivPosition, bot_pivMotor);
-      move_to_position(5, top_pivPosition, top_pivMotor);
+    double timeRobot = Timer.getFPGATimestamp();
+    switch(autoSelected){
+      case Auto1:
+        if((timeRobot - startTime > 1) && (timeRobot - startTime < 3.75)) { //put values back to (time > 12) && (time < 15) and add back else
         
-    } else if((time > 4) && (time < 7)) {
-      grabMotor.set(-0.1);
-      
-    } else if((time > 7) && (time < 10)) {
-      grabMotor.set(0);
-      m_myRobot.arcadeDrive(-0.5, 0,false); 
-      
-    } else if((time > 10) && (time < 15)) {
-    
-      m_myRobot.arcadeDrive(0, 0,false); 
-    } 
+          m_myRobot.arcadeDrive(0.4, 0,false); 
+        } else {
+          m_myRobot.arcadeDrive(0, 0,false); 
 
-/*
-  @Override
-  public void teleopInit() {
-  if (m_autonomousCommand != null) {
-    m_autonomousCommand.cancel();
-  }
-*/
+        }       
+        break;
+      case Auto2:
+        if(timeRobot-startTime==0&&timeRobot-startTime>5){
+          move_to_position(30, top_pivPosition, top_pivMotor, 0.3, true);
+          limit_hit(extendLimit.get(), teleMotor, 0.75, top_pivPosition>20);
+        }
+        else if(timeRobot-startTime<5&&timeRobot-startTime>8){
+          graberMove("cube", grabMotor, grabTimer, "closed");
+        }
+        break;
+      case Auto3:
+
+        break;
+      case defaultAuto:
+        if((timeRobot - startTime > 1) && (timeRobot - startTime < 4)) {
+        
+          m_myRobot.arcadeDrive(-0.3, 0,false); 
+        } else {
+          m_myRobot.arcadeDrive(0, 0,false); 
+
+        }      
+        break;
+    }
+
   } 
   
 }
