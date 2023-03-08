@@ -32,10 +32,12 @@ import edu.wpi.first.wpilibj.util.Color;
 import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CIEColor;
 import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 //import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import com.revrobotics.ColorSensorV3.RawColor;
 
 /* 
 import edu.wpi.first.wpilibj.Encoder;
@@ -54,6 +56,8 @@ public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
   private Joystick m_joystick;
   private Joystick controller;
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
 
   // set drive motor variables
   private static final int left1DeviceID = 1; 
@@ -254,10 +258,23 @@ public class Robot extends TimedRobot {
 
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
-
+    Color detectedColor = m_colorSensor.getColor();
+    //System.out.println(detectedColor.hashCode());
     SmartDashboard.putNumber("Top Pivot Position", top_pivPosition);
     SmartDashboard.putNumber("Bottom Pivot Position", bot_pivPosition);
+    //SmartDashboard.putNumberArray("Color", detectedColor);
 
+     
+    if(detectedColor.hashCode()>1900000000&&detectedColor.hashCode()<2100000000){ // is the hash code for purple
+      SmartDashboard.putString("Game Piece","Cube");
+    }
+    else if(detectedColor.hashCode()>-1600000000&&detectedColor.hashCode()<-1400000000){
+      SmartDashboard.putString("Game Piece", "Cone");
+    }
+    else{
+      SmartDashboard.putString("Game Piece", "N/A");
+    }
+    
 
     /* Untested Slider Code 
     double axis_value = m_joystick.getRawAxis(3);
