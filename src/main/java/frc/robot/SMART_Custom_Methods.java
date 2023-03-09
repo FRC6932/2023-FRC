@@ -3,11 +3,12 @@ package frc.robot;
 // Imports
 import edu.wpi.first.wpilibj.Joystick;
 import com.revrobotics.CANSparkMax;
-
+import edu.wpi.first.wpilibj.Timer;
 
 
 public class SMART_Custom_Methods {
-    
+    private static SMART_Custom_Methods instance = new SMART_Custom_Methods();
+
     // 2023 WORM-E Methods
         // Inputs a desired value to meet, the current value, a specified motor, and motor speed. 
         // Sets the motor to the motorspeed when current value is less than the desired and the motor to zero when it is > or =.
@@ -58,6 +59,40 @@ public class SMART_Custom_Methods {
         else{
           return inputCondition;
         }
+      }
+        // Inputs 
+        // 
+      public void graberMove(String gamePiece, CANSparkMax motor, Timer grabTimer, String state) {
+        grabTimer.start(); // might not work
+        if(gamePiece=="Cube"||gamePiece=="cube"){
+          if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="open"){
+            motor.set(0.3);
+          }
+          else if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="closed"){
+            motor.set(-0.3);
+          }
+          else{
+            grabTimer.stop();
+            grabTimer.reset();
+            motor.set(0);
+          }
+        }
+        else if(gamePiece=="Cone"||gamePiece=="cone"){
+          if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="open"){
+            motor.set(0.3);
+          }
+          else if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="closed"){
+            motor.set(-0.3);
+          }
+          else{
+            grabTimer.stop();
+            grabTimer.reset();
+            motor.set(0);
+          }
+        }
+      }
+      public static SMART_Custom_Methods getInstance() {
+        return instance;
       }
 
 
