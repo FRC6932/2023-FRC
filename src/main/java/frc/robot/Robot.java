@@ -244,19 +244,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-  
+
     // establish variables
     boolean A = controller.getRawButton(1);
     boolean B = controller.getRawButton(2);
     boolean X = controller.getRawButton(3);
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
-    boolean RB = controller.getRawButton(6);
+    boolean RB = controller.getRawButtonPressed(6);
     boolean padUp = cMethods.POVAngle(0, controller);
     boolean padRight = cMethods.POVAngle(90, controller);
     boolean padDown = cMethods.POVAngle(180, controller);
     boolean padLeft = cMethods.POVAngle(270, controller);
-
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
     Color detectedColor = m_colorSensor.getColor();

@@ -60,8 +60,8 @@ public class SMART_Custom_Methods {
           return inputCondition;
         }
       }
-        // Inputs 
-        // 
+        // Inputs the type of game piece (cone or cube), the motor being moved, the timer variable, and the state of the grabber (open or closed)
+        // If the game piece is a cube the motor moves at the motor speed for a set amount of time 
       public void graberMove(String gamePiece, CANSparkMax motor, Timer grabTimer, String state) {
         grabTimer.start(); // might not work
         if(gamePiece=="Cube"||gamePiece=="cube"){
