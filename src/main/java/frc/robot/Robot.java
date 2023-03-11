@@ -34,14 +34,12 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-//import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.kauailabs.navx.frc.AHRS; //Unsure how to import it
 
 /* 
-import edu.wpi.first.wpilibj.Encoder;
 
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 */
@@ -71,16 +69,21 @@ public class Robot extends TimedRobot {
   private CANSparkMax m_right2Motor; 
 
   // set arm motor variables
-  private static final int bot_pivDeviceID = 5; //Bottom of arm motor pivot 
+  private static final int bot_pivDeviceID = 5; // Bottom pivot of the arm 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
-  private static final int top_pivDeviceID = 6; //Top of arm motor pivot 
+  private SparkMaxPIDController bot_pivPidController;
+  private static final int top_pivDeviceID = 6; // Top pivot of the arm 
   private CANSparkMax top_pivMotor;
   private RelativeEncoder top_pivEncoder;
-  private static final int teleDeviceID = 7; //Telescoping section of arm 
+  private SparkMaxPIDController top_pivPidController;
+  private static final int teleDeviceID = 7; // Telescoping section of arm 
   private CANSparkMax teleMotor;
-  private static final int grabDeviceID = 8; //Grabber motor for arm 
+  private static final int grabDeviceID = 8; // Grabber motor for arm 
   private CANSparkMax grabMotor;
+
+  // establishes pid contants
+  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
   
   // set cameras
   VideoSink server;
@@ -134,11 +137,48 @@ public class Robot extends TimedRobot {
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
+    bot_pivPidController = bot_pivMotor.getPIDController();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
     top_pivMotor.setInverted(true);
     top_pivEncoder = top_pivMotor.getEncoder();
+    top_pivPidController = top_pivMotor.getPIDController();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
+
+    // establish pid coeffecients
+    kP = 5e-5; 
+    kI = 1e-6;
+    kD = 0; 
+    kIz = 0; 
+    kFF = 0.000156; 
+    kMaxOutput = 1; 
+    kMinOutput = -1;
+    maxRPM = 15.42; // rpm is reduced due to gear ratio (maxRPM of motor/gear ratio, 5676/368)
+
+    // Smart Motion Coeffecients
+    maxVel = 5; //rpm
+    maxAcc = 3; //rpm
+
+    // set PID coefficients
+    top_pivPidController.setP(kP);
+    bot_pivPidController.setP(kP);
+    top_pivPidController.setI(kI);
+    bot_pivPidController.setI(kI);
+    top_pivPidController.setD(kD);
+    bot_pivPidController.setD(kD);
+    top_pivPidController.setIZone(kIz);
+    bot_pivPidController.setIZone(kIz);
+    top_pivPidController.setFF(kFF);
+    bot_pivPidController.setFF(kFF);
+    top_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
+    bot_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
+
+
+    int smartMotionSlot = 0;
+    top_pivPidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
+    top_pivPidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
+    top_pivPidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
+    top_pivPidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
     // establish controller variablse
     m_joystick = new Joystick(0);
@@ -330,9 +370,9 @@ public class Robot extends TimedRobot {
           cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
-          cMethods.move_to_position(60, top_pivPosition, top_pivMotor, 0.25,true);
-          cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25, true);
-          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,top_pivPosition>20);      
+          cMethods.move_to_position(85, top_pivPosition, top_pivMotor, 0.25,true);
+          cMethods.move_to_position(16, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>=85);
+          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,bot_pivPosition>=16);      
         }
         else if(X){   // Moves the arm to Shelf pickup position (X button)
           cMethods.move_to_position(35, top_pivPosition, top_pivMotor, 0.25,true); 
@@ -346,8 +386,8 @@ public class Robot extends TimedRobot {
       }
       else{   // Moves the arm back to its resting position (No button)
         cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75,true);
-        cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.25,extendLimit.get()==false);
-        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25,top_pivPosition<5);
+        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25,retractLimit.get());
+        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25,bot_pivPosition<5);
       }
     }
     else if(manualPositionToggle){
