@@ -4,7 +4,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.util.Color;
 
 public class SMART_Custom_Methods {
     private static SMART_Custom_Methods instance = new SMART_Custom_Methods();
@@ -12,7 +12,7 @@ public class SMART_Custom_Methods {
     // 2023 WORM-E Methods
         // Inputs a desired value to meet, the current value, a specified motor, and motor speed. 
         // Sets the motor to the motorspeed when current value is less than the desired and the motor to zero when it is > or =.
-    public void move_to_position(double set_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
+      public void move_to_position(double set_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
         if(current_point<set_point&&inputCondition){
           motor.set(motorspeed);
         }
@@ -40,8 +40,13 @@ public class SMART_Custom_Methods {
           motor.set(0);
         }
       }
-        // Inputs a desired angle and device.
-        // Outputs a boolean value of true if the desired angle is the same as the measured angle and false if it is different.
+
+      /**
+       * 
+       * @param angle Input a desired angle
+       * @param input_device Inputs controller or joystick to take the POV angle of
+       * @return A boolean value of true if the desired angle is the same as the measured angle and false if it is different
+       */
       public boolean POVAngle(int angle, Joystick input_device) {
         if(input_device.getPOV()==angle){
           return true;
@@ -50,8 +55,11 @@ public class SMART_Custom_Methods {
           return false;
         }
       }
-        // Inputs a condition to be considered and a toggle value
-        // Outputs true if the toggle is active and the input condition if it is not
+
+      /**
+       * <p> Inputs a condition to be considered and a toggle value
+       * @return Outputs true if the toggle is active and the input condition if it is not
+      */
       public boolean diognosticConditions(boolean inputCondition, boolean toggle) { // Make toggle diognosticToggle whenever called
         if(toggle){
           return true;
@@ -60,8 +68,27 @@ public class SMART_Custom_Methods {
           return inputCondition;
         }
       }
-        // Inputs the type of game piece (cone or cube), the motor being moved, the timer variable, and the state of the grabber (open or closed)
-        // If the game piece is a cube the motor moves at the motor speed for a set amount of time 
+
+      /** 
+       * @param Inputs the color and associated data seen by the color sensor (REV Color Sensor V3)
+       * @return A string value of Cube or Cone if the hash code is within the expected range and N/A if neither of the ranges are true
+      */
+      public String detectGamePiece(Color detectedColorCode) {
+        if(detectedColorCode.hashCode()>1900000000&&detectedColorCode.hashCode()<2100000000){ // The hash code range for cube color
+          return "Cube";
+        }
+        else if(detectedColorCode.hashCode()>-1600000000&&detectedColorCode.hashCode()<-1400000000){ // The hash code range for cone color
+          return "Cone";
+        }
+        else{ // If neither of the expected hash code ranges are found
+          return "N/A";
+        }
+      }
+
+      /**
+       * @param Inputs the type of game piece (cone or cube), the motor being moved, the timer variable, and the state of the grabber (open or closed)
+       * @ If the game piece is a cube the motor moves at the motor speed for a set amount of time 
+      */
       public void graberMove(String gamePiece, CANSparkMax motor, Timer grabTimer, String state) {
         grabTimer.start(); // might not work
         if(gamePiece=="Cube"||gamePiece=="cube"){
@@ -91,6 +118,11 @@ public class SMART_Custom_Methods {
           }
         }
       }
+      /* 
+      public void autoBalance() {
+        
+      }
+      */
       public static SMART_Custom_Methods getInstance() {
         return instance;
       }

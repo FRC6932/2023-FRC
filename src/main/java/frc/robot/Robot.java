@@ -17,6 +17,7 @@
 // External Imports
 package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -35,7 +36,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-//import com.kauailabs.navx.frc; Unsure how to import it
+import com.kauailabs.navx.frc.AHRS; //Unsure how to import it
 
 /* 
 import edu.wpi.first.wpilibj.Encoder;
@@ -49,8 +50,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Robot extends TimedRobot {
 
   SMART_Custom_Methods cMethods = SMART_Custom_Methods.getInstance();
-  //ahrs = new AHRS(SerialPort.Port.kMXP); 
-  
+   
+  AHRS ahrs = new AHRS(SerialPort.Port.kMXP);
 
   // set control variables
   private DifferentialDrive m_myRobot;
@@ -251,7 +252,7 @@ public class Robot extends TimedRobot {
     boolean X = controller.getRawButton(3);
     boolean Y = controller.getRawButton(4);
     boolean LB = controller.getRawButton(5);
-    boolean RB = controller.getRawButtonPressed(6);
+    boolean RB = controller.getRawButton(6); // change to getRawButtonPressed
     boolean padUp = cMethods.POVAngle(0, controller);
     boolean padRight = cMethods.POVAngle(90, controller);
     boolean padDown = cMethods.POVAngle(180, controller);
@@ -262,7 +263,6 @@ public class Robot extends TimedRobot {
     //System.out.println(detectedColor.hashCode());
     SmartDashboard.putNumber("Top Pivot Position", top_pivPosition);
     SmartDashboard.putNumber("Bottom Pivot Position", bot_pivPosition);
-    //SmartDashboard.putNumberArray("Color", detectedColor);
 
      
     if(detectedColor.hashCode()>1900000000&&detectedColor.hashCode()<2100000000){ // is the hash code for purple
@@ -326,28 +326,28 @@ public class Robot extends TimedRobot {
     if(autoPositionToggle){
       if(A||B||X||Y){
         if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
-          cMethods.move_to_position(6, top_pivPosition, top_pivMotor, 0.1,true);
-          cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.1, top_pivPosition>5);
+          cMethods.move_to_position(6, top_pivPosition, top_pivMotor, 0.25,true);
+          cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
-          cMethods.move_to_position(30, top_pivPosition, top_pivMotor, 0.25,true);
-          //move_to_position(20, bot_pivPosition, bot_pivMotor, 0.1, top_pivPosition>5);
+          cMethods.move_to_position(60, top_pivPosition, top_pivMotor, 0.25,true);
+          cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25, true);
           cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,top_pivPosition>20);      
         }
         else if(X){   // Moves the arm to Shelf pickup position (X button)
-          cMethods.move_to_position(35, top_pivPosition, top_pivMotor, 0.1,true); 
+          cMethods.move_to_position(35, top_pivPosition, top_pivMotor, 0.25,true); 
           cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,true);       
         }
         else if(Y){   // Moves the arm to High height scoring position (Y button)
-          cMethods.move_to_position(10, bot_pivPosition, bot_pivMotor, 0.1,true);
-          cMethods.move_to_position(10, top_pivPosition, top_pivMotor, 0.1, top_pivPosition>5);
+          cMethods.move_to_position(10, bot_pivPosition, bot_pivMotor, 0.25,true);
+          cMethods.move_to_position(10, top_pivPosition, top_pivMotor, 0.25, top_pivPosition>5);
           cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,true);        
         }
       }
       else{   // Moves the arm back to its resting position (No button)
         cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75,true);
-        cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.1,extendLimit.get()==false);
-        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.1,top_pivPosition<5);
+        cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.25,extendLimit.get()==false);
+        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.25,top_pivPosition<5);
       }
     }
     else if(manualPositionToggle){
@@ -385,6 +385,7 @@ public class Robot extends TimedRobot {
     
     if(RB){
       grabMotor.set(0.3);
+      
     }
     else if(controller.getRawAxis(3)>0.5){
       grabMotor.set(-0.3);
@@ -425,11 +426,16 @@ public class Robot extends TimedRobot {
         break;
       case Auto2:
         if(timeRobot-startTime==0&&timeRobot-startTime>5){
-          cMethods.move_to_position(30, top_pivPosition, top_pivMotor, 0.3, true);
+          cMethods.move_to_position(60, top_pivPosition, top_pivMotor, 0.3, true);
           cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75, top_pivPosition>20);
         }
         else if(timeRobot-startTime<5&&timeRobot-startTime>8){
           cMethods.graberMove("cube", grabMotor, grabTimer, "closed");
+        }
+        else if(timeRobot-startTime<8&&timeRobot-startTime>10){
+          cMethods.graberMove("cube", grabMotor, grabTimer, "open");
+          cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75, true);
+          cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.25, extendLimit.get()==false);
         }
         break;
       case Auto3:
