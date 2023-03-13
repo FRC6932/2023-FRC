@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.kauailabs.navx.frc.AHRS; //Unsure how to import it
 
@@ -146,18 +147,18 @@ public class Robot extends TimedRobot {
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
     // establish pid coeffecients
-    kP = 5e-5; 
-    kI = 1e-6;
+    kP = 0.1; 
+    kI = 0.01;
     kD = 0; 
     kIz = 0; 
-    kFF = 0.000156; 
+    kFF = 0.1; 
     kMaxOutput = 1; 
     kMinOutput = -1;
     maxRPM = 15.42; // rpm is reduced due to gear ratio (maxRPM of motor/gear ratio, 5676/368)
 
     // Smart Motion Coeffecients
-    maxVel = 5; //rpm
-    maxAcc = 3; //rpm
+    maxVel = 5; // rpm
+    maxAcc = 3; // rpm/s
 
     // set PID coefficients
     top_pivPidController.setP(kP);
@@ -172,13 +173,16 @@ public class Robot extends TimedRobot {
     bot_pivPidController.setFF(kFF);
     top_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
     bot_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
+    bot_pivPidController.setFeedbackDevice(bot_pivEncoder);
+    top_pivPidController.setFeedbackDevice(top_pivEncoder);
 
-
+    /* 
     int smartMotionSlot = 0;
     top_pivPidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
     top_pivPidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
     top_pivPidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
     top_pivPidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
+    */
 
     // establish controller variablse
     m_joystick = new Joystick(0);
@@ -201,86 +205,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", chooser);
   }
 
-  // create functions for arm movement (Will be imported from another file later)
-  // (input desired encoder position, encoder position, and motor)
-  /* 
-  private void move_to_position(double set_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
-    if(current_point<set_point&&inputCondition){
-      motor.set(motorspeed);
-    }
-    else{
-      motor.set(0);
-    }
-  }
-  private void move_to_rest(double rest_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition) {
-    if(current_point>rest_point&&inputCondition){
-      motor.set(motorspeed); //input a negative
-    }
-    else{
-      motor.set(0);
-    }
-  }
-
-  private void limit_hit(Boolean limit, CANSparkMax motor, double motorspeed, boolean inputCondition) {
-    if(limit==false&&inputCondition){
-      motor.set(motorspeed);
-    }
-    else{
-      motor.set(0);
-    }
-  }
-
-  public boolean POVAngle(int angle, Joystick input_device) {
-    if(input_device.getPOV()==angle){
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-
-  public boolean diognosticConditions(boolean inputCondition, boolean toggle) { // Make toggle diognosticToggle whenever called
-    if(toggle){
-      return true;
-    }
-    else{
-      return inputCondition;
-    }
-  }
-
-  public void graberMove(String gamePiece, CANSparkMax motor, Timer grabTimer, String state) {
-    grabTimer.start(); // might not work
-    if(gamePiece=="Cube"||gamePiece=="cube"){
-      if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="open"){
-        motor.set(0.3);
-      }
-      else if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="closed"){
-        motor.set(-0.3);
-      }
-      else{
-        grabTimer.stop();
-        grabTimer.reset();
-        motor.set(0);
-      }
-    }
-    else if(gamePiece=="Cone"||gamePiece=="cone"){
-      if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="open"){
-        motor.set(0.3);
-      }
-      else if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="closed"){
-        motor.set(-0.3);
-      }
-      else{
-        grabTimer.stop();
-        grabTimer.reset();
-        motor.set(0);
-      }
-    }
-    
-
-
-  }
-  */
 
 
   @Override
@@ -366,8 +290,16 @@ public class Robot extends TimedRobot {
     if(autoPositionToggle){
       if(A||B||X||Y){
         if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
+          /* 
           cMethods.move_to_position(6, top_pivPosition, top_pivMotor, 0.25,true);
           cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);
+          */
+          bot_pivPidController.setReference(5, ControlType.kPosition); 
+          double distance = 1 - bot_pivEncoder.getPosition();
+          double feedforward = 0.1 * distance;
+
+          double output = bot_pivPidController.calculate(bot_pivEncoder.getPosition()) + feedforward;
+          bot_pivMotor.set(output);
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
           cMethods.move_to_position(85, top_pivPosition, top_pivMotor, 0.25,true);
@@ -392,10 +324,10 @@ public class Robot extends TimedRobot {
     }
     else if(manualPositionToggle){
       if(padUp){
-        top_pivMotor.set(0.15);
+        top_pivMotor.set(0.55);
       }
       else if(padDown&&cMethods.diognosticConditions(top_pivPosition>0, diognosticToggle)){
-        top_pivMotor.set(-0.15);
+        top_pivMotor.set(-0.3);
       }
       else{
         top_pivMotor.set(0);
@@ -412,10 +344,10 @@ public class Robot extends TimedRobot {
       }
       
       if(LB&&extendLimit.get()==false){
-        teleMotor.set(0.5);
+        teleMotor.set(0.75);
       }
       else if(controller.getRawAxis(2)>0.5&&cMethods.diognosticConditions(retractLimit.get()==false, diognosticToggle)){
-        teleMotor.set(-0.5);
+        teleMotor.set(-0.75);
       }
       else{
         teleMotor.set(0);
