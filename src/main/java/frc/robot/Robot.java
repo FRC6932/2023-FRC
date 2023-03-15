@@ -34,10 +34,8 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-//import com.revrobotics.SparkMaxPIDController;
-//import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.kauailabs.navx.frc.AHRS; //Unsure how to import it
+import com.kauailabs.navx.frc.AHRS; 
 
 /* 
 
@@ -73,18 +71,15 @@ public class Robot extends TimedRobot {
   private static final int bot_pivDeviceID = 5; // Bottom pivot of the arm 
   private CANSparkMax bot_pivMotor;
   private RelativeEncoder bot_pivEncoder;
-  //private SparkMaxPIDController bot_pivPidController;
   private static final int top_pivDeviceID = 6; // Top pivot of the arm 
   private CANSparkMax top_pivMotor;
   private RelativeEncoder top_pivEncoder;
-  //private SparkMaxPIDController top_pivPidController;
   private static final int teleDeviceID = 7; // Telescoping section of arm 
   private CANSparkMax teleMotor;
   private static final int grabDeviceID = 8; // Grabber motor for arm 
   private CANSparkMax grabMotor;
 
   // establishes pid contants
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
   
   // set cameras
   VideoSink server;
@@ -138,52 +133,13 @@ public class Robot extends TimedRobot {
     bot_pivMotor = new CANSparkMax(bot_pivDeviceID, MotorType.kBrushless);
     bot_pivMotor.setInverted(true);
     bot_pivEncoder = bot_pivMotor.getEncoder();
-    //bot_pivPidController = bot_pivMotor.getPIDController();
     top_pivMotor = new CANSparkMax(top_pivDeviceID, MotorType.kBrushless);
     top_pivMotor.setInverted(true);
     top_pivEncoder = top_pivMotor.getEncoder();
-    //top_pivPidController = top_pivMotor.getPIDController();
     teleMotor = new CANSparkMax(teleDeviceID, MotorType.kBrushed);
     grabMotor = new CANSparkMax(grabDeviceID, MotorType.kBrushed);
 
-    // establish pid coeffecients
-    kP = 0.1; 
-    kI = 0.01;
-    kD = 0; 
-    kIz = 0; 
-    kFF = 0.1; 
-    kMaxOutput = 1; 
-    kMinOutput = -1;
-    maxRPM = 15.42; // rpm is reduced due to gear ratio (maxRPM of motor/gear ratio, 5676/368)
-
-    // Smart Motion Coeffecients
-    maxVel = 5; // rpm
-    maxAcc = 3; // rpm/s
-
-    /* 
-    // set PID coefficients
-    top_pivPidController.setP(kP);
-    bot_pivPidController.setP(kP);
-    top_pivPidController.setI(kI);
-    bot_pivPidController.setI(kI);
-    top_pivPidController.setD(kD);
-    bot_pivPidController.setD(kD);
-    top_pivPidController.setIZone(kIz);
-    bot_pivPidController.setIZone(kIz);
-    top_pivPidController.setFF(kFF);
-    bot_pivPidController.setFF(kFF);
-    top_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
-    bot_pivPidController.setOutputRange(kMinOutput, kMaxOutput);
-    bot_pivPidController.setFeedbackDevice(bot_pivEncoder);
-    top_pivPidController.setFeedbackDevice(top_pivEncoder);
-    */
-    /* 
-    int smartMotionSlot = 0;
-    top_pivPidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
-    top_pivPidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
-    top_pivPidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-    top_pivPidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-    */
+    
 
     // establish controller variablse
     m_joystick = new Joystick(0);
@@ -196,20 +152,22 @@ public class Robot extends TimedRobot {
     autoPositionToggle = false;
     diognosticToggle = false;
 
-    bot_pivEncoder.setPosition(1);
-    top_pivEncoder.setPosition(1);
+    bot_pivEncoder.setPosition(0);
+    top_pivEncoder.setPosition(0);
 
     chooser.setDefaultOption("Just Drive Out", defaultAuto);
     chooser.addOption("Over Charge Station", Auto1);
     chooser.addOption("Place Cube on Middle and Drive Out", Auto2);
     chooser.addOption("Place Cube on High and Drive Out", Auto3);
     SmartDashboard.putData("Auto choices", chooser);
+
   }
 
 
 
   @Override
   public void teleopPeriodic() {
+
 
     // establish variables
     boolean A = controller.getRawButton(1);
@@ -270,8 +228,8 @@ public class Robot extends TimedRobot {
 
     // Reset encoder values ("left joystick" button)
     if (controller.getRawButtonPressed(9)){
-      bot_pivEncoder.setPosition(1);
-      top_pivEncoder.setPosition(1);
+      bot_pivEncoder.setPosition(0);
+      top_pivEncoder.setPosition(0);
     }
 
     if(controller.getRawButtonPressed(7)){
@@ -288,14 +246,14 @@ public class Robot extends TimedRobot {
       diognosticToggle = !diognosticToggle;
     }
     
+
+    
+
     if(autoPositionToggle){
       if(A||B||X||Y){
         if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
-          
           cMethods.move_to_position(20, top_pivPosition, top_pivMotor, 0.1,true);
-          //cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);
-          
-          
+          //cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);          
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
           cMethods.move_to_position(86, top_pivPosition, top_pivMotor, 0.25,true);
@@ -314,7 +272,7 @@ public class Robot extends TimedRobot {
       }
       else{   // Moves the arm back to its resting position (No button)
         cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75,true);
-        cMethods.move_to_rest(1, top_pivPosition, top_pivMotor, 0.1,true);
+        //cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, 0.1,true);
         //cMethods.move_to_rest(1, bot_pivPosition, bot_pivMotor, -0.01,top_pivPosition<5);
       }
     }
@@ -322,7 +280,7 @@ public class Robot extends TimedRobot {
       if(padUp){
         top_pivMotor.set(0.55);
       }
-      else if(padDown&&cMethods.diognosticConditions(top_pivPosition>1, diognosticToggle)){
+      else if(padDown&&cMethods.diognosticConditions(top_pivPosition>0, diognosticToggle)){
         top_pivMotor.set(-0.3);
       }
       else{
@@ -332,7 +290,7 @@ public class Robot extends TimedRobot {
       if(padLeft){
         bot_pivMotor.set(0.1);
       }
-      else if(padRight&&cMethods.diognosticConditions(bot_pivPosition>1, diognosticToggle)){
+      else if(padRight&&cMethods.diognosticConditions(bot_pivPosition>0, diognosticToggle)){
         bot_pivMotor.set(-0.1);
       }
       else{

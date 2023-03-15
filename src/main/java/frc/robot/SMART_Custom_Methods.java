@@ -15,6 +15,7 @@ public class SMART_Custom_Methods {
         // Sets the motor to the motorspeed when current value is less than the desired and the motor to zero when it is > or =.
       public void move_to_position(double set_point, double current_point, CANSparkMax motor, double max_motorspeed, boolean inputCondition){
         double motorspeed;
+        motorspeed = max_motorspeed;
         if(current_point<set_point&&inputCondition){
           //motorspeed = (Math.pow(((current_point-(set_point/2))/(set_point/2)), 2))+max_motorspeed;
           //motorspeed = current_point-(set_point/2)+max_motorspeed;
