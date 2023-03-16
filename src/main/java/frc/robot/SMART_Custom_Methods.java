@@ -4,8 +4,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.util.Color;
-import java.lang.Math;
+//import edu.wpi.first.wpilibj.util.Color;
 
 public class SMART_Custom_Methods {
     private static SMART_Custom_Methods instance = new SMART_Custom_Methods();
@@ -13,12 +12,8 @@ public class SMART_Custom_Methods {
     // 2023 WORM-E Methods
         // Inputs a desired value to meet, the current value, a specified motor, and motor speed. 
         // Sets the motor to the motorspeed when current value is less than the desired and the motor to zero when it is > or =.
-      public void move_to_position(double set_point, double current_point, CANSparkMax motor, double max_motorspeed, boolean inputCondition){
-        double motorspeed;
-        motorspeed = max_motorspeed;
+      public void move_to_position(double set_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition){
         if(current_point<set_point&&inputCondition){
-          //motorspeed = (Math.pow(((current_point-(set_point/2))/(set_point/2)), 2))+max_motorspeed;
-          //motorspeed = current_point-(set_point/2)+max_motorspeed;
           motor.set(motorspeed);
         }
         else{
@@ -27,10 +22,19 @@ public class SMART_Custom_Methods {
       }
         // Inputs a desired 0 value to meet, the current value, a specified motor, and motor speed.
         // Sets the motor to the motorspeed when current value is greater than the 0 and the motor to 0 when it is < or =.
-      public void move_to_rest(double rest_point, double current_point, CANSparkMax motor, double max_motorspeed, boolean inputCondition){
-        double motorspeed;
+      public void move_to_rest(double rest_point, double current_point, CANSparkMax motor, double motorspeed, boolean inputCondition, String game_piece){
+        
+        if(game_piece=="cube"){
+          rest_point += 13;
+        }
+        else if(game_piece=="cone"){
+          rest_point += 15;
+        }
+        else if(game_piece=="N/A"){
+          rest_point +=0;
+        }
+        
         if(current_point>rest_point&&inputCondition){
-          motorspeed = (-Math.pow(((current_point-(rest_point/2))/(rest_point/2)), 2))-max_motorspeed;
           motor.set(motorspeed); //input a negative
         }
         else{
@@ -80,7 +84,19 @@ public class SMART_Custom_Methods {
        * @param Inputs the color and associated data seen by the color sensor (REV Color Sensor V3)
        * @return A string value of Cube or Cone if the hash code is within the expected range and N/A if neither of the ranges are true
       */
-      public String detectGamePiece(Color detectedColorCode){
+      public String detectGamePiece(Joystick controller){ // if using color sensor add Color detectedColorCode parameter
+        
+        if(controller.getRawAxis(3)>0.5){
+          return "cube";
+        }
+        else if(controller.getRawAxis(3)<-0.5){
+          return "cone";
+        }
+        else{
+          return"N/A";
+        }
+        
+        /* 
         if(detectedColorCode.hashCode()>1900000000&&detectedColorCode.hashCode()<2100000000){ // The hash code range for cube color
           return "Cube";
         }
@@ -90,6 +106,7 @@ public class SMART_Custom_Methods {
         else{ // If neither of the expected hash code ranges are found
           return "N/A";
         }
+        */
       }
 
       /**

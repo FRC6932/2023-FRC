@@ -182,12 +182,16 @@ public class Robot extends TimedRobot {
     boolean padLeft = cMethods.POVAngle(270, controller);
     double bot_pivPosition = bot_pivEncoder.getPosition();
     double top_pivPosition = top_pivEncoder.getPosition();
-    Color detectedColor = m_colorSensor.getColor();
+    //Color detectedColor = m_colorSensor.getColor();
     //System.out.println(detectedColor.hashCode());
     SmartDashboard.putNumber("Top Pivot Position", top_pivPosition);
     SmartDashboard.putNumber("Bottom Pivot Position", bot_pivPosition);
+    SmartDashboard.putBoolean("Retracted", retractLimit.get());
+    SmartDashboard.putBoolean("Extended", extendLimit.get());
 
-     
+    SmartDashboard.putString("Game Piece Mode",cMethods.detectGamePiece(m_joystick));
+
+    /* 
     if(detectedColor.hashCode()>1900000000&&detectedColor.hashCode()<2100000000){ // is the hash code for purple
       SmartDashboard.putString("Game Piece","Cube");
     }
@@ -197,13 +201,14 @@ public class Robot extends TimedRobot {
     else{
       SmartDashboard.putString("Game Piece", "N/A");
     }
-    
+    */ 
 
     /* Untested Slider Code 
     double axis_value = m_joystick.getRawAxis(3);
     double mutliplier = ((axis_value + 1)/2);
     System.out.format("%.2f%n",mutliplier);
     */
+
     
    // Robot drive 
       // Use joystick for driving
@@ -252,33 +257,35 @@ public class Robot extends TimedRobot {
     if(autoPositionToggle){
       if(A||B||X||Y){
         if(A){        // Moves the arm to Floor height scoring/pickup position (A button)
-          cMethods.move_to_position(20, top_pivPosition, top_pivMotor, 0.1,true);
-          //cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>5);          
+          cMethods.move_to_position(18, top_pivPosition, top_pivMotor, 0.25,true);
+          cMethods.move_to_position(5, bot_pivPosition, bot_pivMotor, 0.2, top_pivPosition>=17);
+          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75, bot_pivPosition>=5);
+
         }
         else if(B){   // Moves the arm to Medium height scoring position (B button)
           cMethods.move_to_position(86, top_pivPosition, top_pivMotor, 0.25,true);
-          cMethods.move_to_position(17, bot_pivPosition, bot_pivMotor, 0.25, top_pivPosition>=85);
-          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,bot_pivPosition>=16);      
+          cMethods.move_to_position(8, bot_pivPosition, bot_pivMotor, 0.15, top_pivPosition>=86);
+          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,bot_pivPosition>=8);      
         }
         else if(X){   // Moves the arm to Shelf pickup position (X button)
-          cMethods.move_to_position(36, top_pivPosition, top_pivMotor, 0.25,true); 
-          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,true);       
+          cMethods.move_to_position(63, top_pivPosition, top_pivMotor, 0.4,true); 
+          cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75,true);       
         }
         else if(Y){   // Moves the arm to High height scoring position (Y button)
-          cMethods.move_to_position(11, bot_pivPosition, bot_pivMotor, 0.25,true);
-          cMethods.move_to_position(11, top_pivPosition, top_pivMotor, 0.25, top_pivPosition>5);
-          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,true);        
+          cMethods.move_to_position(128, top_pivPosition, top_pivMotor, 0.1, true);
+          cMethods.move_to_position(42, bot_pivPosition, bot_pivMotor, 0.1,top_pivPosition>=64);
+          cMethods.limit_hit(extendLimit.get(), teleMotor, 0.75,bot_pivPosition>=42);        
         }
       }
       else{   // Moves the arm back to its resting position (No button)
         cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75,true);
-        //cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, 0.1,true);
-        //cMethods.move_to_rest(1, bot_pivPosition, bot_pivMotor, -0.01,top_pivPosition<5);
+        cMethods.move_to_rest(0, bot_pivPosition, bot_pivMotor, -0.2,retractLimit.get(),"N/A");
+        cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.2,bot_pivPosition<5,cMethods.detectGamePiece(m_joystick));
       }
     }
     else if(manualPositionToggle){
       if(padUp){
-        top_pivMotor.set(0.55);
+        top_pivMotor.set(0.4);
       }
       else if(padDown&&cMethods.diognosticConditions(top_pivPosition>0, diognosticToggle)){
         top_pivMotor.set(-0.3);
@@ -291,7 +298,7 @@ public class Robot extends TimedRobot {
         bot_pivMotor.set(0.1);
       }
       else if(padRight&&cMethods.diognosticConditions(bot_pivPosition>0, diognosticToggle)){
-        bot_pivMotor.set(-0.1);
+        bot_pivMotor.set(-0.15);
       }
       else{
         bot_pivMotor.set(0);
@@ -361,7 +368,7 @@ public class Robot extends TimedRobot {
         else if(timeRobot-startTime<8&&timeRobot-startTime>10){
           cMethods.graberMove("cube", grabMotor, grabTimer, "open");
           cMethods.limit_hit(retractLimit.get(), teleMotor, -0.75, true);
-          cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.25, extendLimit.get()==false);
+          cMethods.move_to_rest(0, top_pivPosition, top_pivMotor, -0.25, extendLimit.get()==false,cMethods.detectGamePiece(m_joystick));
         }
         break;
       case Auto3:
