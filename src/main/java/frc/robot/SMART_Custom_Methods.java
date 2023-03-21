@@ -28,7 +28,7 @@ public class SMART_Custom_Methods {
           rest_point += 13;
         }
         else if(game_piece=="cone"){
-          rest_point += 15;
+          rest_point += 18;
         }
         else if(game_piece=="N/A"){
           rest_point +=0;
@@ -119,7 +119,7 @@ public class SMART_Custom_Methods {
           if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="open"){
             motor.set(0.3);
           }
-          else if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="closed"){
+          else if(grabTimer.get()!=0&&grabTimer.get()>2&&state=="closed"){
             motor.set(-0.3);
           }
           else{
@@ -129,7 +129,7 @@ public class SMART_Custom_Methods {
           }
         }
         else if(gamePiece=="Cone"||gamePiece=="cone"){
-          if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="open"){
+          if(grabTimer.get()!=0&&grabTimer.get()>3&&state=="open"){
             motor.set(0.3);
           }
           else if(grabTimer.get()!=0&&grabTimer.get()>4&&state=="closed"){
@@ -140,6 +140,17 @@ public class SMART_Custom_Methods {
             grabTimer.reset();
             motor.set(0);
           }
+        }
+      }
+      public void TEST_move_to_position(double set_point, double current_point, CANSparkMax motor, double max_motorspeed, boolean inputCondition, double motorspeed){        
+        if(current_point<set_point&&inputCondition){
+          motorspeed = ((current_point-(set_point/2.1))/(set_point/1.9));
+          motorspeed = motorspeed*motorspeed;
+          motorspeed = (-motorspeed*max_motorspeed) + max_motorspeed;
+          motor.set(motorspeed);
+        }
+        else{
+          motor.set(0);
         }
       }
       /* 
